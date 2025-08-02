@@ -16,11 +16,13 @@ This Turborepo includes the following packages/apps:
 
 ### Apps and Packages
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `api`: a [Fastify](https://fastify.dev/) + [tRPC](https://trpc.io/) backend API
+- `web`: a [Next.js](https://nextjs.org/) app
+- `@repo/database`: Prisma database client with PostgreSQL
+- `@repo/ui`: React component library shared by frontend applications
+- `@repo/utils`: Shared utility functions
+- `@repo/types`: Shared TypeScript type definitions
+- `@repo/tsconfig`: `tsconfig.json`s used throughout the monorepo
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
@@ -29,8 +31,9 @@ Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 This Turborepo has some additional tools already setup for you:
 
 - [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- [Biome](https://biomejs.dev/) for linting and code formatting
+- [Prisma](https://www.prisma.io/) for database ORM
+- [tRPC](https://trpc.io/) for type-safe API
 
 ### Build
 

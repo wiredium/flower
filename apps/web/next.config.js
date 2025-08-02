@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  eslint: {
+    // We use Biome instead of ESLint
+    ignoreDuringBuilds: true,
+  },
+};
 
 export default nextConfig;
