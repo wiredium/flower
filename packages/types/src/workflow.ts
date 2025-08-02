@@ -82,4 +82,39 @@ export interface WorkflowExecutionContext {
   results: Record<string, any>
   currentNodeId?: string
   executionPath: string[]
+  executionId?: string
+}
+
+// Node handler interface
+export interface NodeHandler {
+  execute: (node: WorkflowNode, context: WorkflowExecutionContext) => Promise<any>
+  validate?: (node: WorkflowNode) => boolean
+}
+
+// Workflow statistics
+export interface WorkflowStatistics {
+  totalExecutions: number
+  successfulExecutions: number
+  failedExecutions: number
+  successRate: number
+  averageDuration: number
+}
+
+// Workflow execution event types
+export type WorkflowEventType = 
+  | 'nodeStart' 
+  | 'nodeComplete' 
+  | 'nodeError' 
+  | 'executionStart' 
+  | 'executionComplete' 
+  | 'executionError' 
+  | 'executionCancelled'
+
+export interface WorkflowEvent {
+  type: WorkflowEventType
+  nodeId?: string
+  context?: WorkflowExecutionContext
+  result?: any
+  error?: Error
+  timestamp: Date
 }

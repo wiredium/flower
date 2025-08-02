@@ -7,14 +7,12 @@ import type {
   WorkflowExecutionContext,
   NodeExecutionStatus,
   NodeType,
+  NodeHandler,
+  WorkflowEvent,
+  WorkflowEventType,
 } from '@repo/types'
 import { OpenRouterService } from './openrouter.service.js'
 import { EventEmitter } from 'events'
-
-interface NodeHandler {
-  execute: (node: WorkflowNode, context: WorkflowExecutionContext) => Promise<any>
-  validate?: (node: WorkflowNode) => boolean
-}
 
 export class WorkflowService extends EventEmitter {
   private nodeHandlers: Map<NodeType, NodeHandler>

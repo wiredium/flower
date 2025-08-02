@@ -98,3 +98,42 @@ export interface AIUsageStats {
     totalCost: number
   }>
 }
+
+// Model selection strategy
+export interface ModelSelectionStrategy {
+  taskType: AITaskType | string
+  fallbackModels?: string[]
+  maxRetries?: number
+  costThreshold?: number
+}
+
+// AI service configuration
+export interface AIServiceConfig {
+  apiKey: string
+  apiUrl?: string
+  defaultModel?: string
+  maxTokensPerRequest?: number
+  budgetPerUser?: number
+  rateLimit?: {
+    maxRequests: number
+    windowMs: number
+  }
+}
+
+// AI generation history
+export interface AIGenerationHistory {
+  id: string
+  userId: string
+  projectId?: string
+  model: string
+  provider: string
+  prompt: string
+  response: string
+  inputTokens: number
+  outputTokens: number
+  cost: number
+  latency: number
+  taskType: string
+  quality?: number
+  createdAt: Date
+}

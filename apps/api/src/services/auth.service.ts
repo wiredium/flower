@@ -4,17 +4,7 @@ import { TRPCError } from '@trpc/server'
 import { prisma } from '@repo/database'
 import { config } from '../lib/config.js'
 import type { User } from '@prisma/client'
-
-interface TokenPayload {
-  userId: string
-  email: string
-  role: string
-}
-
-interface AuthTokens {
-  accessToken: string
-  refreshToken: string
-}
+import type { TokenPayload, AuthTokens } from '@repo/types'
 
 export class AuthService {
   private readonly saltRounds = 10
