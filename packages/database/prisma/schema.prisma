@@ -10,11 +10,337 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Example models - modify as needed
+// ==============
+// ENUMS
+// ==============
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+}
+
+enum ProjectStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+enum WorkflowExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum IntegrationProvider {
+  GITHUB
+  JIRA
+  TRELLO
+  SLACK
+}
+
+// ==============
+// USER & AUTH
+// ==============
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  hashedPassword  String?
+  role            UserRole  @default(USER)
+  credits         Int       @default(100)
+  avatarUrl       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  projects        Project[]
+  aiGenerations   AIGeneration[]
+  userIntegrations UserIntegration[]
+  collaborations  ProjectCollaborator[]
+  showcaseVotes   ShowcaseVote[]
+  comments        Comment[]
+}
+
+// ==============
+// PROJECTS & WORKFLOWS
+// ==============
+model Project {
+  id              String        @id @default(cuid())
+  name            String
+  description     String        @db.Text
+  workflowData    Json          // ReactFlow nodes and edges
+  status          ProjectStatus @default(DRAFT)
+  visibility      Visibility    @default(PRIVATE)
+  tags            String[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  ownerId         String
+  owner           User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  collaborators   ProjectCollaborator[]
+  executions      WorkflowExecution[]
+  aiGenerations   AIGeneration[]
+  showcaseEntry   ShowcaseEntry?
+  onboardingSession OnboardingSession?
+  generatedPlans  GeneratedPlan[]
+  finalDocument   FinalDocument?
+  templateId      String?
+  template        Template?     @relation(fields: [templateId], references: [id])
+}
+
+model ProjectCollaborator {
+  id          String   @id @default(cuid())
+  projectId   String
+  userId      String
+  role        String   // owner, editor, viewer
+  addedAt     DateTime @default(now())
+  
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([projectId, userId])
+}
+
+// ==============
+// WORKFLOW EXECUTION
+// ==============
+model WorkflowExecution {
+  id          String                  @id @default(cuid())
+  projectId   String
+  status      WorkflowExecutionStatus @default(PENDING)
+  startedAt   DateTime                @default(now())
+  completedAt DateTime?
+  logs        Json[]
+  results     Json?
+  error       String?
+  
+  project     Project                 @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ==============
+// AI INTEGRATION
+// ==============
+model AIGeneration {
+  id            String   @id @default(cuid())
+  userId        String
+  projectId     String
+  
+  model         String   // e.g., "anthropic/claude-3-opus"
+  provider      String   @default("openrouter")
+  
+  prompt        String   @db.Text
+  response      String   @db.Text
+  
+  inputTokens   Int
+  outputTokens  Int
+  cost          Decimal  @db.Decimal(10, 6)
+  latency       Int      // milliseconds
+  
+  taskType      String   // code, documentation, analysis, etc.
+  quality       Int?     // User feedback score 1-5
+  
+  metadata      Json?    // Additional context
+  
+  createdAt     DateTime @default(now())
+  
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, createdAt])
+  @@index([projectId, createdAt])
+}
+
+model ModelPerformance {
+  id          String   @id @default(cuid())
+  model       String
+  taskType    String
+  
+  avgLatency  Int
+  avgCost     Decimal  @db.Decimal(10, 6)
+  avgQuality  Float
+  successRate Float
+  sampleCount Int      @default(0)
+  
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([model, taskType])
+}
+
+// ==============
+// INTEGRATIONS
+// ==============
+model UserIntegration {
+  id                String              @id @default(cuid())
+  userId            String
+  provider          IntegrationProvider
+  externalAccountId String
+  accessToken       String              @db.Text // Encrypted
+  refreshToken      String?             @db.Text // Encrypted
+  scopes            String[]
+  expiresAt         DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, provider])
+}
+
+// ==============
+// TEMPLATES
+// ==============
+model Template {
+  id           String    @id @default(cuid())
+  name         String
+  description  String    @db.Text
+  category     String    // SaaS, Mobile, Web, API, etc.
+  icon         String?   // emoji or icon name
+  tags         String[]
+  
+  workflowData Json      // Pre-configured ReactFlow data
+  prefillData  Json      // Data to prefill in onboarding
+  
+  isOfficial   Boolean   @default(false)
+  isPublic     Boolean   @default(true)
+  usageCount   Int       @default(0)
+  
+  authorId     String?
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  projects     Project[]
+}
+
+// ==============
+// SHOWCASE & COMMUNITY
+// ==============
+model ShowcaseEntry {
+  id          String    @id @default(cuid())
+  title       String
+  description String    @db.Text
+  tags        String[]
+  
+  // Sanitized content for public viewing
+  sanitizedWorkflow     Json
+  sanitizedInstructions String?   @db.Text
+  
+  upvotes     Int       @default(0)
+  views       Int       @default(0)
+  
+  projectId   String?   @unique
+  project     Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  
+  authorName  String?   // Can be anonymous
+  
+  status      String    @default("published") // published, pending_review, rejected
+  publishedAt DateTime  @default(now())
+  
+  votes       ShowcaseVote[]
+  comments    Comment[]
+  
+  @@index([publishedAt])
+  @@index([upvotes])
+}
+
+model ShowcaseVote {
+  id          String        @id @default(cuid())
+  showcaseId  String
+  userId      String
+  value       Int           // 1 for upvote, -1 for downvote
+  createdAt   DateTime      @default(now())
+  
+  showcase    ShowcaseEntry @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([showcaseId, userId])
+}
+
+model Comment {
+  id          String        @id @default(cuid())
+  content     String        @db.Text
+  showcaseId  String
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  showcase    ShowcaseEntry @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ==============
+// ONBOARDING & PLANNING (From original vision)
+// ==============
+model OnboardingSession {
+  id          String    @id @default(cuid())
+  projectId   String    @unique
+  
+  theme       String?
+  topics      Json?
+  roles       Json?
+  techStack   Json?
+  frameworks  Json?
+  
+  currentStep String    @default("module1_start")
+  isCompleted Boolean   @default(false)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model LLM {
+  id           String   @id @default(cuid())
+  modelName    String   @unique
+  displayName  String
+  provider     String
+  
+  costPerMillionInputTokens  Decimal @db.Decimal(10, 6)
+  costPerMillionOutputTokens Decimal @db.Decimal(10, 6)
+  
+  isActive     Boolean  @default(true)
+  
+  generatedPlans GeneratedPlan[]
+}
+
+model GeneratedPlan {
+  id          String    @id @default(cuid())
+  projectId   String
+  llmId       String
+  
+  content     Json
+  version     Int       @default(1)
+  isArchived  Boolean   @default(false)
+  
+  createdAt   DateTime  @default(now())
+  
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  llm         LLM       @relation(fields: [llmId], references: [id])
+  
+  @@index([projectId, createdAt])
+}
+
+model FinalDocument {
+  id                  String    @id @default(cuid())
+  projectId           String    @unique
+  
+  projectInstructions String    @db.Text
+  brdContent          String    @db.Text
+  pitchDeckContent    String    @db.Text
+  additionalArtifacts Json?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
