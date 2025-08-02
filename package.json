@@ -1,5 +1,5 @@
 {
-  "name": "cerebras-hackathon",
+  "name": "flower",
   "private": true,
   "scripts": {
     "build": "turbo run build",

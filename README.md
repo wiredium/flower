@@ -1,6 +1,6 @@
-# Turborepo starter
+# flower
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern monorepo application built with Turborepo, Next.js, Fastify, and tRPC.
 
 ## Using this example
 
