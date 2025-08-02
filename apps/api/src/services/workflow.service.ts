@@ -12,6 +12,8 @@ import type {
   WorkflowEventType,
 } from '@repo/types'
 import { OpenRouterService } from './openrouter.service.js'
+import { realtimeService } from './realtime.service.js'
+import { notificationService } from './notification.service.js'
 import { EventEmitter } from 'events'
 
 export class WorkflowService extends EventEmitter {

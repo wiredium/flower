@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify'
 import { createContext } from './context.js'
 import { appRouter } from '../routers/index.js'
+import { sseRoutes } from '../routes/sse.route.js'
 
 export async function buildServer() {
   const fastify = Fastify({
@@ -38,6 +39,9 @@ export async function buildServer() {
     prefix: '/trpc',
     trpcOptions: { router: appRouter, createContext },
   })
+
+  // Register SSE routes for real-time updates
+  await fastify.register(sseRoutes)
 
   return fastify
 }
