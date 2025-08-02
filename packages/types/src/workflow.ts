@@ -32,17 +32,16 @@ export interface WorkflowData {
   }
 }
 
-export enum NodeType {
-  START = 'start',
-  END = 'end',
-  TASK = 'task',
-  DECISION = 'decision',
-  INTEGRATION = 'integration',
-  AI = 'ai',
-  LOOP = 'loop',
-  PARALLEL = 'parallel',
-  CUSTOM = 'custom',
-}
+export type NodeType = 
+  | 'start'
+  | 'end'
+  | 'task'
+  | 'decision'
+  | 'integration'
+  | 'ai'
+  | 'loop'
+  | 'parallel'
+  | 'custom'
 
 export enum EdgeType {
   DEFAULT = 'default',

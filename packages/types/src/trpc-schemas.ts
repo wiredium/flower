@@ -98,7 +98,7 @@ export const generateWorkflowSchema = z.object({
 // Workflow schemas
 export const workflowNodeSchema = z.object({
   id: z.string(),
-  type: z.nativeEnum(NodeType),
+  type: z.enum(['start', 'end', 'task', 'decision', 'integration', 'ai', 'loop', 'parallel', 'custom']),
   position: z.object({
     x: z.number(),
     y: z.number(),
