@@ -24,13 +24,26 @@ const envSchema = z.object({
   
   // OpenRouter AI
   OPENROUTER_API_KEY: z.string().optional(),
+  OPENROUTER_BASE_URL: z.string().default('https://openrouter.ai/api/v1'),
+  OPENROUTER_SITE_URL: z.string().optional(),
+  OPENROUTER_SITE_NAME: z.string().optional(),
   DEFAULT_AI_MODEL: z.string().default('anthropic/claude-3-sonnet'),
   FALLBACK_MODELS: z.string().default('gpt-4-turbo,llama-3-70b'),
   MAX_TOKENS_PER_REQUEST: z.string().default('4000').transform(Number),
   AI_BUDGET_PER_USER: z.string().default('10.00').transform(Number),
   
+  // OAuth
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  API_URL: z.string().default('http://localhost:3001'),
+  
   // Redis
   REDIS_URL: z.string().optional(),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.string().default('6379').transform(Number).optional(),
+  REDIS_PASSWORD: z.string().optional(),
   
   // Security
   ENCRYPTION_KEY: z.string().optional(),

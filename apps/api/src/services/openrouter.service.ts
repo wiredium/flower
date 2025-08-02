@@ -211,6 +211,93 @@ export class OpenRouterService {
   }
 
   /**
+   * Generate with a specific model
+   */
+  async generateWithModel(
+    model: string,
+    prompt: string,
+    options: GenerateOptions = {}
+  ): Promise<{
+    response: string
+    model: string
+    cost: number
+    tokens: { input: number, output: number }
+  }> {
+    if (!this.apiKey) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'OpenRouter API key not configured',
+      })
+    }
+
+    const startTime = Date.now()
+
+    try {
+      const response = await fetch(this.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://flower.app',
+          'X-Title': 'Flower - Workflow Builder',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+          temperature: options.temperature ?? 0.7,
+          max_tokens: options.maxTokens ?? 2000,
+          top_p: options.topP ?? 1,
+          stream: false,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `OpenRouter API error: ${error}`,
+        })
+      }
+
+      const data = await response.json() as OpenRouterResponse
+      const content = data.choices[0]?.message?.content || ''
+      
+      // Calculate cost (use default rates if model not in config)
+      const cost = data.usage ? this.calculateCost(
+        data.usage.prompt_tokens,
+        data.usage.completion_tokens,
+        { 
+          model, 
+          inputCostPer1M: 5.00, 
+          outputCostPer1M: 15.00, 
+          maxTokens: 4096 
+        }
+      ) : 0
+
+      return {
+        response: content,
+        model,
+        cost,
+        tokens: {
+          input: data.usage?.prompt_tokens || 0,
+          output: data.usage?.completion_tokens || 0,
+        },
+      }
+    } catch (error) {
+      console.error('OpenRouter generation error:', error)
+      throw error instanceof TRPCError ? error : new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to generate content',
+      })
+    }
+  }
+
+  /**
    * Stream completion from OpenRouter
    */
   async *stream(

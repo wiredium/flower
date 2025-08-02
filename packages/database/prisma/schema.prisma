@@ -72,6 +72,10 @@ model User {
   showcaseForks   ShowcaseFork[]
   notifications   Notification[]
   invitationsSent ProjectInvitation[]
+  marketplaceItems MarketplaceItem[]
+  marketplacePurchases MarketplacePurchase[]
+  marketplaceReviews MarketplaceReview[]
+  apiKeys         APIKey[]
 }
 
 // ==============
@@ -103,6 +107,12 @@ model Project {
   showcase        Showcase?
   showcaseForks   ShowcaseFork[]
   invitations     ProjectInvitation[]
+  versions        WorkflowVersion[]
+  currentVersion  WorkflowVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  currentVersionId String? @unique
+  analytics       WorkflowAnalytics?
+  marketplaceItem MarketplaceItem?
+  scheduledWorkflows ScheduledWorkflow[]
 }
 
 model ProjectCollaborator {
@@ -460,4 +470,242 @@ model Notification {
   
   @@index([userId, read])
   @@index([userId, createdAt])
+}
+
+// ==============
+// WORKFLOW VERSIONING
+// ==============
+model WorkflowVersion {
+  id           String   @id @default(cuid())
+  projectId    String
+  version      Int
+  workflowData Json
+  changelog    String?  @db.Text
+  createdBy    String
+  createdAt    DateTime @default(now())
+  
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  currentForProject Project? @relation("CurrentVersion")
+  
+  @@unique([projectId, version])
+  @@index([projectId, createdAt])
+}
+
+// ==============
+// ANALYTICS & METRICS
+// ==============
+model WorkflowAnalytics {
+  id                String   @id @default(cuid())
+  projectId         String   @unique
+  totalExecutions   Int      @default(0)
+  successfulRuns    Int      @default(0)
+  failedRuns        Int      @default(0)
+  averageDuration   Int      @default(0) // milliseconds
+  totalNodesExecuted Int     @default(0)
+  totalAICalls      Int      @default(0)
+  totalCost         Decimal  @default(0) @db.Decimal(10, 6)
+  lastExecutedAt    DateTime?
+  
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  nodeAnalytics     NodeAnalytics[]
+  dailyMetrics      DailyMetrics[]
+  
+  @@index([projectId])
+}
+
+model NodeAnalytics {
+  id              String   @id @default(cuid())
+  analyticsId     String
+  nodeId          String
+  nodeType        String
+  executionCount  Int      @default(0)
+  successCount    Int      @default(0)
+  failureCount    Int      @default(0)
+  averageDuration Int      @default(0) // milliseconds
+  
+  analytics       WorkflowAnalytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+  
+  @@unique([analyticsId, nodeId])
+  @@index([analyticsId])
+}
+
+model DailyMetrics {
+  id              String   @id @default(cuid())
+  analyticsId     String
+  date            DateTime @db.Date
+  executions      Int      @default(0)
+  successes       Int      @default(0)
+  failures        Int      @default(0)
+  totalDuration   Int      @default(0) // milliseconds
+  uniqueUsers     Int      @default(0)
+  aiCalls         Int      @default(0)
+  cost            Decimal  @default(0) @db.Decimal(10, 6)
+  
+  analytics       WorkflowAnalytics @relation(fields: [analyticsId], references: [id], onDelete: Cascade)
+  
+  @@unique([analyticsId, date])
+  @@index([analyticsId, date])
+}
+
+// ==============
+// MARKETPLACE
+// ==============
+model MarketplaceItem {
+  id             String   @id @default(cuid())
+  projectId      String   @unique
+  sellerId       String
+  title          String
+  description    String   @db.Text
+  category       String
+  price          Decimal  @db.Decimal(10, 2)
+  currency       String   @default("USD")
+  thumbnailUrl   String?
+  previewData    Json?    // Limited preview of workflow
+  features       String[]
+  requirements   String[]
+  
+  isActive       Boolean  @default(true)
+  isVerified     Boolean  @default(false)
+  
+  totalSales     Int      @default(0)
+  totalRevenue   Decimal  @default(0) @db.Decimal(10, 2)
+  rating         Float    @default(0)
+  reviewCount    Int      @default(0)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  seller         User     @relation(fields: [sellerId], references: [id])
+  purchases      MarketplacePurchase[]
+  reviews        MarketplaceReview[]
+  
+  @@index([category])
+  @@index([price])
+  @@index([rating])
+  @@index([totalSales])
+}
+
+model MarketplacePurchase {
+  id            String   @id @default(cuid())
+  itemId        String
+  buyerId       String
+  price         Decimal  @db.Decimal(10, 2)
+  currency      String
+  transactionId String?  @unique
+  status        String   @default("PENDING") // PENDING, COMPLETED, REFUNDED
+  purchasedAt   DateTime @default(now())
+  
+  item          MarketplaceItem @relation(fields: [itemId], references: [id])
+  buyer         User     @relation(fields: [buyerId], references: [id])
+  
+  @@index([buyerId])
+  @@index([itemId])
+}
+
+model MarketplaceReview {
+  id         String   @id @default(cuid())
+  itemId     String
+  userId     String
+  rating     Int      // 1-5
+  title      String
+  content    String   @db.Text
+  helpful    Int      @default(0)
+  verified   Boolean  @default(false) // Verified purchase
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  item       MarketplaceItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+  
+  @@unique([itemId, userId])
+  @@index([itemId, rating])
+}
+
+// ==============
+// API KEYS
+// ==============
+model APIKey {
+  id          String   @id @default(cuid())
+  name        String
+  keyHash     String   @unique
+  userId      String
+  scopes      String[]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([keyHash])
+}
+
+// ==============
+// SCHEDULING
+// ==============
+model ScheduledWorkflow {
+  id              String   @id @default(cuid())
+  projectId       String
+  name            String
+  description     String?
+  
+  // Schedule configuration
+  scheduleType    String   // ONCE, RECURRING, CRON
+  timezone        String   @default("UTC")
+  
+  // For ONCE
+  scheduledAt     DateTime?
+  
+  // For RECURRING
+  interval        String?  // HOURLY, DAILY, WEEKLY, MONTHLY
+  intervalValue   Int?     // Every N intervals
+  
+  // For CRON
+  cronExpression  String?
+  
+  // Execution window
+  startDate       DateTime
+  endDate         DateTime?
+  
+  // Configuration
+  inputData       Json?    // Input variables for execution
+  maxRetries      Int      @default(3)
+  retryDelay      Int      @default(60000) // milliseconds
+  timeoutMinutes  Int      @default(30)
+  
+  // Status
+  isActive        Boolean  @default(true)
+  isPaused        Boolean  @default(false)
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+  totalRuns       Int      @default(0)
+  successfulRuns  Int      @default(0)
+  failedRuns      Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  executions      ScheduledExecution[]
+  
+  @@index([projectId])
+  @@index([nextRunAt])
+  @@index([isActive, isPaused])
+}
+
+model ScheduledExecution {
+  id            String   @id @default(cuid())
+  scheduleId    String
+  executionId   String?  // Link to WorkflowExecution
+  status        String   // PENDING, RUNNING, COMPLETED, FAILED, SKIPPED
+  scheduledFor  DateTime
+  startedAt     DateTime?
+  completedAt   DateTime?
+  error         String?  @db.Text
+  retryCount    Int      @default(0)
+  
+  schedule      ScheduledWorkflow @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  
+  @@index([scheduleId, scheduledFor])
 }
