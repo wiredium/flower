@@ -1,4 +1,4 @@
-import { router, publicProcedure } from '../lib/trpc.js'
+import { router, publicProcedure } from '../lib/trpc'
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
 

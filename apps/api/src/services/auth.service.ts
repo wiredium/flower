@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { TRPCError } from '@trpc/server'
 import { prisma } from '@repo/database'
-import { config } from '../lib/config.js'
+import { config } from '../lib/config'
 import type { User } from '@prisma/client'
 import type { TokenPayload, AuthTokens } from '@repo/types'
 

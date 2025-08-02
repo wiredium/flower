@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { randomUUID } from 'crypto'
-import { realtimeService } from '../services/realtime.service.js'
-import { authService } from '../services/auth.service.js'
+import { realtimeService } from '../services/realtime.service'
+import { authService } from '../services/auth.service'
 
 interface SSEQuerystring {
   projectId?: string

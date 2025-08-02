@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { router, protectedProcedure } from '../lib/trpc.js'
-import { collaborationService } from '../services/collaboration.service.js'
+import { router, protectedProcedure } from '../lib/trpc'
+import { collaborationService } from '../services/collaboration.service'
 
 const inviteSchema = z.object({
   projectId: z.string().uuid(),

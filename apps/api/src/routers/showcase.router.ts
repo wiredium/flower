@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { router, publicProcedure, protectedProcedure } from '../lib/trpc.js'
+import { router, publicProcedure, protectedProcedure } from '../lib/trpc'
 import { prisma } from '@repo/database'
 
 const createShowcaseSchema = z.object({

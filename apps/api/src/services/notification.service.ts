@@ -1,5 +1,5 @@
 import { prisma } from '@repo/database'
-import { realtimeService } from './realtime.service.js'
+import { realtimeService } from './realtime.service'
 import type { NotificationPayload } from '@repo/types'
 
 export type NotificationType = 

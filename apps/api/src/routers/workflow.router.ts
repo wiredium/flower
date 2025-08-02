@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { router, protectedProcedure } from '../lib/trpc.js'
+import { router, protectedProcedure } from '../lib/trpc'
 import { TRPCError } from '@trpc/server'
-import { workflowService } from '../services/workflow.service.js'
+import { workflowService } from '../services/workflow.service'
 import { prisma } from '@repo/database'
 import type { WorkflowExecutionContext } from '@repo/types'
 import {

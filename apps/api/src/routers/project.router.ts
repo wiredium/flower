@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { router, protectedProcedure } from '../lib/trpc.js'
+import { router, protectedProcedure } from '../lib/trpc'
 import { TRPCError } from '@trpc/server'
 import { 
   createProjectSchema,

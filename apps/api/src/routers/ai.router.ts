@@ -1,7 +1,7 @@
-import { router, publicProcedure, protectedProcedure } from '../lib/trpc.js'
+import { router, publicProcedure, protectedProcedure } from '../lib/trpc'
 import { z } from 'zod'
 import { TRPCError } from '@trpc/server'
-import { OpenRouterService } from '../services/openrouter.service.js'
+import { OpenRouterService } from '../services/openrouter.service'
 import { prisma } from '@repo/database'
 import type { AITaskType, AIUsageStats, CostEstimate } from '@repo/types'
 import {

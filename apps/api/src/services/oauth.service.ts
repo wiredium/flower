@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server'
 import { prisma } from '@repo/database'
-import { authService } from './auth.service.js'
-import { config } from '../lib/config.js'
+import { authService } from './auth.service'
+import { config } from '../lib/config'
 import type { User } from '@prisma/client'
 
 interface OAuthProfile {

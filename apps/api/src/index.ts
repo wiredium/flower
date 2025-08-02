@@ -1,4 +1,4 @@
-import { buildServer } from './lib/server.js'
+import { buildServer } from './lib/server'
 
 const start = async () => {
   const server = await buildServer()

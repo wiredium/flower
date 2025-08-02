@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server'
 import { prisma } from '@repo/database'
-import { OpenRouterService } from './openrouter.service.js'
+import { OpenRouterService } from './openrouter.service'
 import type { AITaskType, GenerateOptions } from '@repo/types'
 
 interface AITask {

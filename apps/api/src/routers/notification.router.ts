@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { router, protectedProcedure } from '../lib/trpc.js'
-import { notificationService, type NotificationType } from '../services/notification.service.js'
+import { router, protectedProcedure } from '../lib/trpc'
+import { notificationService, type NotificationType } from '../services/notification.service'
 
 const getNotificationsSchema = z.object({
   read: z.boolean().optional(),

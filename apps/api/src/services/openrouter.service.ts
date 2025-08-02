@@ -1,4 +1,4 @@
-import { config } from '../lib/config.js'
+import { config } from '../lib/config'
 import { prisma } from '@repo/database'
 import { TRPCError } from '@trpc/server'
 import type { 

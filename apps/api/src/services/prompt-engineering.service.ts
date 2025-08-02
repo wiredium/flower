@@ -1,4 +1,4 @@
-import { aiOrchestrator } from './ai-orchestrator.service.js'
+import { aiOrchestrator } from './ai-orchestrator.service'
 import type { AITaskType } from '@repo/types'
 
 interface ChainStep {

@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server'
-import { middleware } from '../lib/trpc.js'
-import { authService } from '../services/auth.service.js'
+import { middleware } from '../lib/trpc-base'
+import { authService } from '../services/auth.service'
 
 /**
  * Authentication middleware

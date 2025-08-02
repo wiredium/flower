@@ -1,9 +1,9 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import { fastifyTRPCPlugin } from '@trpc/server/adapters/fastify'
-import { createContext } from './context.js'
-import { appRouter } from '../routers/index.js'
-import { sseRoutes } from '../routes/sse.route.js'
+import { createContext } from './context'
+import { appRouter } from '../routers/index'
+import { sseRoutes } from '../routes/sse.route'
 
 export async function buildServer() {
   const fastify = Fastify({

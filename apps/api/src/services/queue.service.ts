@@ -1,8 +1,8 @@
 import { Queue, Worker, Job, QueueEvents } from 'bullmq'
-import { config } from '../lib/config.js'
-import { workflowService } from './workflow.service.js'
-import { notificationService } from './notification.service.js'
-import { analyticsService } from './analytics.service.js'
+import { config } from '../lib/config'
+import { workflowService } from './workflow.service'
+import { notificationService } from './notification.service'
+import { analyticsService } from './analytics.service'
 import { prisma } from '@repo/database'
 import type { WorkflowData, WorkflowExecutionContext } from '@repo/types'
 

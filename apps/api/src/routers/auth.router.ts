@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { router, publicProcedure, protectedProcedure } from '../lib/trpc.js'
-import { authService } from '../services/auth.service.js'
+import { router, publicProcedure, protectedProcedure } from '../lib/trpc'
+import { authService } from '../services/auth.service'
 import { 
   registerSchema,
   loginSchema,

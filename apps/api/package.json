@@ -1,10 +1,9 @@
 {
   "name": "api",
   "version": "0.1.0",
-  "type": "module",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "npx tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "biome check .",
@@ -35,11 +34,13 @@
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
+    "@swc/core": "^1.13.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.15.3",
     "pino-pretty": "^13.0.0",
-    "tsx": "^4.19.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "5.8.2"
   }
 }

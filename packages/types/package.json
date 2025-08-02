@@ -12,7 +12,8 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@trpc/server": "^10.45.2"
+    "@trpc/server": "^10.45.2",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@repo/tsconfig": "workspace:*",
