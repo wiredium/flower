@@ -2180,8 +2180,8 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
             </div>
             
             {/* Instruction Modal */}
-            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen} className="!h-[85vh] !w-[500px] flex flex-col">
-              <DialogContent className="!h-[85vh] !w-[500px] flex flex-col">
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="h-[85vh] w-[500px] flex flex-col">
                 <DialogHeader className="flex-shrink-0">
                   <DialogTitle className="flex items-center gap-2">
                     {selectedInstruction?.llm.icon && (
