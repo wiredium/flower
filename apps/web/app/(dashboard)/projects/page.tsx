@@ -16,6 +16,17 @@ import { Slider } from "@packages/ui/src/slider"
 import { Switch } from "@packages/ui/src/switch"
 import { Checkbox } from "@packages/ui/src/checkbox"
 import { toast } from "@packages/ui/src/toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@packages/ui/src/dialog"
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { trpc } from "@/lib/trpc"
 import { Visibility } from "@packages/types/src/project"
 import { openRouterService } from "@/lib/openrouter"
@@ -415,6 +426,7 @@ export default function CreateProjectPage() {
   const [selectedInstruction, setSelectedInstruction] = useState<any>(null)
   const [isGenerating, setIsGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   
   // Tech Stack selections (Step 2)
   const [selectedTechStack, setSelectedTechStack] = useState<Record<string, string[]>>({
@@ -490,15 +502,26 @@ export default function CreateProjectPage() {
       setModelsError(null)
       try {
         const models = await openRouterService.getAvailableModels()
-        // Filter and format models for display
+        // Filter and format models for display - Only include reliable models
         const formattedModels = models
           .filter((model: any) => {
-            // Filter for popular/capable models including Cerebras
-            const popularProviders = ['openai', 'anthropic', 'google', 'meta-llama', 'mistralai', 'deepseek', 'cohere', 'perplexity', 'qwen', 'meta', 'cerebras']
-            const provider = model.id.split('/')[0].toLowerCase()
-            // Include models with good context length or Cerebras models
-            const isCerebrasModel = model.id.includes('qwen3') || model.id.includes('llama-4') || model.id.includes('llama-3.3') || model.id.includes('llama-3.1') || model.id.includes('deepseek-r1')
-            return (popularProviders.includes(provider) && model.context_length >= 8000) || isCerebrasModel
+            // Known reliable models that work well with OpenRouter
+            const reliableModels = [
+              'meta-llama/llama-3.3-70b-instruct',
+              'meta-llama/llama-3.1-8b-instruct',
+              'meta-llama/llama-3.1-70b-instruct',
+              'openai/gpt-4-turbo',
+              'openai/gpt-4',
+              'openai/gpt-3.5-turbo',
+              'anthropic/claude-3-opus',
+              'anthropic/claude-3-sonnet',
+              'anthropic/claude-3-haiku',
+              'google/gemini-pro',
+              'mistralai/mixtral-8x7b-instruct'
+            ]
+            
+            // Only include models that are in our reliable list
+            return reliableModels.includes(model.id) && model.context_length >= 4000
           })
           .map((model: any) => {
             const provider = model.id.split('/')[0]
@@ -545,8 +568,8 @@ export default function CreateProjectPage() {
       } catch (error) {
         console.error('Failed to fetch models:', error)
         setModelsError('Failed to load models. Using Cerebras models.')
-        // Fallback to Cerebras models that work well
-        const cerebrasFallback = [
+        // Fallback to reliable models that work well
+        const reliableFallback = [
           {
             id: 'meta-llama/llama-3.3-70b-instruct',
             name: 'Llama 3.3 70B',
@@ -567,9 +590,18 @@ export default function CreateProjectPage() {
             cost: 0.0005,
             isCerebras: true
           },
-          ...llmProviders
+          {
+            id: 'openai/gpt-3.5-turbo',
+            name: 'GPT-3.5 Turbo',
+            provider: 'OpenAI',
+            icon: '🤖',
+            strengths: ['Reliable', 'Fast', 'Cost effective'],
+            speed: 'fast',
+            cost: 0.002,
+            isCerebras: false
+          }
         ]
-        setAvailableModels(cerebrasFallback)
+        setAvailableModels(reliableFallback)
       } finally {
         setLoadingModels(false)
       }
@@ -1368,7 +1400,7 @@ The project will be considered successful when:
 
 ## 💡 Pro Tips for AI Code Agents
 
-When using this instruction with AI code agents (Cursor, Claude, GitHub Copilot, etc.):
+When using this instruction with AI code agents (especially **Cline**, Cursor, Claude, GitHub Copilot, etc.):
 
 1. **Start with the structure**: Ask the AI to create the project structure first
 2. **Implement in phases**: Follow the implementation steps sequentially
@@ -1417,6 +1449,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
   
   const selectInstruction = (instruction: any) => {
     setSelectedInstruction(instruction)
+    setIsModalOpen(true)
   }
   
   // Save project mutation
@@ -1795,7 +1828,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                     </div>
                   </CardHeader>
                   <CardContent className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 py-4">
                       {category.options.map(tech => {
                         const isRecommended = getRecommendedTech(projectType).includes(tech.id)
                         const isSelected = selectedTechStack[categoryKey]?.includes(tech.id)
@@ -1803,6 +1836,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                         return (
                           <button
                             key={tech.id}
+                            type="button"
                             onClick={() => toggleTechStack(categoryKey, tech.id)}
                             className={`
                               relative p-3 rounded-lg border-2 transition-all duration-200
@@ -1840,7 +1874,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
 
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between py-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Selected Technologies</p>
                     <p className="text-2xl font-bold text-primary">
@@ -2034,16 +2068,13 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
               </p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Instructions List */}
-              <div className="lg:col-span-2 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {generatedInstructions.map((instruction) => (
                   <Card 
                     key={instruction.id}
-                    className={`cursor-pointer transition-all hover:shadow-lg ${
+                    className={`transition-all hover:shadow-lg ${
                       selectedInstruction?.id === instruction.id ? 'ring-2 ring-primary' : ''
                     }`}
-                    onClick={() => selectInstruction(instruction)}
                   >
                     <CardHeader>
                       <div className="flex items-start justify-between">
@@ -2080,20 +2111,20 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                         </p>
                       </div>
                       
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <Button 
                           size="sm" 
-                          variant={selectedInstruction?.id === instruction.id ? "default" : "outline"}
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => selectInstruction(instruction)}
                         >
-                          {selectedInstruction?.id === instruction.id ? 'Selected' : 'Select This'}
+                          <FileText className="h-4 w-4 mr-1" />
+                          View Instructions
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            copyToClipboard(instruction.instruction)
-                          }}
+                          onClick={() => copyToClipboard(instruction.instruction)}
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -2101,44 +2132,122 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-              
-              {/* Selected Instruction Preview */}
-              <div className="space-y-4">
-                <Card className="sticky top-4">
-                  <CardHeader>
-                    <CardTitle>Selected Instructions</CardTitle>
-                    <CardDescription>
-                      {selectedInstruction ? `By ${selectedInstruction.llm.name}` : 'Select an instruction to preview'}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedInstruction ? (
-                      <div className="space-y-4">
-                        <div className="max-h-[400px] overflow-y-auto">
-                          <pre className="text-xs whitespace-pre-wrap font-mono">
-                            {selectedInstruction.instruction}
-                          </pre>
-                        </div>
-                        
-                        <Button 
-                          className="w-full"
-                          onClick={() => setStep(5)}
-                        >
-                          Continue to Enhancement
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">No instruction selected</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
             </div>
+            
+            {/* Continue Button */}
+            <div className="flex justify-center mt-8">
+              <Button 
+                size="lg"
+                disabled={!selectedInstruction}
+                onClick={() => setStep(5)}
+              >
+                Continue to Enhancement
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+            
+            {/* Instruction Modal */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
+                  <DialogTitle className="flex items-center gap-2">
+                    {selectedInstruction?.llm.icon && (
+                      <span className="text-2xl">{selectedInstruction.llm.icon}</span>
+                    )}
+                    {selectedInstruction?.llm.name} Instructions
+                  </DialogTitle>
+                  <DialogDescription>
+                    Estimated time: ~{selectedInstruction?.estimatedTime} hours • {selectedInstruction?.llm.provider}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div className="flex-1 min-h-0 overflow-y-auto px-2 py-2">
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({children}) => <h1 className="text-2xl font-bold mt-6 mb-4">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-xl font-semibold mt-5 mb-3">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-lg font-medium mt-4 mb-2">{children}</h3>,
+                        h4: ({children}) => <h4 className="text-base font-medium mt-3 mb-2">{children}</h4>,
+                        p: ({children}) => <p className="mb-3 leading-relaxed">{children}</p>,
+                        ul: ({children}) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+                        ol: ({children}) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+                        li: ({children}) => <li className="leading-relaxed">{children}</li>,
+                        code: ({inline, children}) => {
+                          if (inline) {
+                            return <code className="px-1.5 py-0.5 bg-muted rounded text-sm font-mono">{children}</code>
+                          }
+                          return (
+                            <div className="relative">
+                              <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-3">
+                                <code className="text-sm font-mono">{children}</code>
+                              </pre>
+                            </div>
+                          )
+                        },
+                        blockquote: ({children}) => (
+                          <blockquote className="border-l-4 border-primary pl-4 italic my-3">
+                            {children}
+                          </blockquote>
+                        ),
+                        strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                        em: ({children}) => <em className="italic">{children}</em>,
+                        hr: () => <hr className="my-4 border-t" />,
+                        a: ({href, children}) => (
+                          <a href={href} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                            {children}
+                          </a>
+                        ),
+                        table: ({children}) => (
+                          <div className="overflow-x-auto mb-3">
+                            <table className="min-w-full divide-y divide-border">
+                              {children}
+                            </table>
+                          </div>
+                        ),
+                        thead: ({children}) => <thead className="bg-muted">{children}</thead>,
+                        tbody: ({children}) => <tbody className="divide-y divide-border">{children}</tbody>,
+                        tr: ({children}) => <tr>{children}</tr>,
+                        th: ({children}) => <th className="px-3 py-2 text-left text-sm font-medium">{children}</th>,
+                        td: ({children}) => <td className="px-3 py-2 text-sm">{children}</td>,
+                      }}
+                    >
+                      {selectedInstruction?.instruction || ''}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+                
+                <DialogFooter className="flex-shrink-0 flex-row justify-between sm:justify-between">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      copyToClipboard(selectedInstruction?.instruction || '')
+                    }}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Instructions
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      Close
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setIsModalOpen(false)
+                        setStep(5)
+                      }}
+                    >
+                      Continue to Enhancement
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
         
@@ -2279,7 +2388,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                       <div>
                         <CardTitle>Complete Instructions</CardTitle>
                         <CardDescription>
-                          Optimized for Cursor, Claude, and other AI code agents
+                          Optimized for Cline, Cursor, Claude, and other AI code agents
                         </CardDescription>
                       </div>
                       <div className="flex items-center space-x-2">
@@ -2333,16 +2442,37 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                 {/* Quick Actions */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
+                    <CardTitle>Export Instructions</CardTitle>
+                    <CardDescription>Use your project instructions with AI coding assistants</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
-                    <Button className="w-full" variant="default">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open in Cursor
+                    <Button 
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700" 
+                      variant="default"
+                      onClick={() => copyToClipboard(finalInstruction)}
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      🧠 Copy for Cline
                     </Button>
-                    <Button className="w-full" variant="outline">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Open in Claude
+                    <Button 
+                      className="w-full" 
+                      variant="outline"
+                      onClick={() => {
+                        const blob = new Blob([finalInstruction], { type: 'text/markdown' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = `${projectName}-instructions.md`
+                        a.click()
+                        URL.revokeObjectURL(url)
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download as Markdown
+                    </Button>
+                    <Button className="w-full" variant="outline" onClick={() => copyToClipboard(finalInstruction)}>
+                      <Terminal className="h-4 w-4 mr-2" />
+                      Copy for Other AI Agents
                     </Button>
                     <Button className="w-full" variant="outline">
                       <FileJson className="h-4 w-4 mr-2" />
@@ -2355,6 +2485,7 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                 <Card>
                   <CardHeader>
                     <CardTitle>Project Summary</CardTitle>
+                    <CardDescription>How to use with Cline</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div>
@@ -2385,29 +2516,45 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                 {/* Usage Tips */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>How to Use</CardTitle>
+                    <CardTitle>🧠 How to Use with Cline</CardTitle>
+                    <CardDescription>Step-by-step guide for local development</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ol className="space-y-2 text-sm">
+                    <ol className="space-y-3 text-sm">
                       <li className="flex items-start">
-                        <span className="font-medium mr-2">1.</span>
-                        Copy or download the instructions
+                        <span className="font-semibold mr-2 text-purple-600">1.</span>
+                        <div>
+                          <p className="font-medium">Install Cline in VS Code</p>
+                          <p className="text-muted-foreground text-xs">Search "Cline" in VS Code Extensions</p>
+                        </div>
                       </li>
                       <li className="flex items-start">
-                        <span className="font-medium mr-2">2.</span>
-                        Open your preferred AI code editor
+                        <span className="font-semibold mr-2 text-purple-600">2.</span>
+                        <div>
+                          <p className="font-medium">Copy your instructions above</p>
+                          <p className="text-muted-foreground text-xs">Use the "🧠 Copy for Cline" button</p>
+                        </div>
                       </li>
                       <li className="flex items-start">
-                        <span className="font-medium mr-2">3.</span>
-                        Paste the entire instruction as a prompt
+                        <span className="font-semibold mr-2 text-purple-600">3.</span>
+                        <div>
+                          <p className="font-medium">Open Cline in VS Code</p>
+                          <p className="text-muted-foreground text-xs">Cmd/Ctrl + Shift + P → "Cline: Open In New Tab"</p>
+                        </div>
                       </li>
                       <li className="flex items-start">
-                        <span className="font-medium mr-2">4.</span>
-                        Let the AI build your project step by step
+                        <span className="font-semibold mr-2 text-purple-600">4.</span>
+                        <div>
+                          <p className="font-medium">Paste the complete instructions</p>
+                          <p className="text-muted-foreground text-xs">Cline will analyze and start building your project</p>
+                        </div>
                       </li>
                       <li className="flex items-start">
-                        <span className="font-medium mr-2">5.</span>
-                        Review and refine as needed
+                        <span className="font-semibold mr-2 text-purple-600">5.</span>
+                        <div>
+                          <p className="font-medium">Approve each step as Cline works</p>
+                          <p className="text-muted-foreground text-xs">Review file changes and terminal commands before execution</p>
+                        </div>
                       </li>
                     </ol>
                   </CardContent>

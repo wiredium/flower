@@ -24,9 +24,11 @@ import {
   Brain,
   FileText,
   Terminal,
-  ListChecks
+  ListChecks,
+  LayoutDashboard
 } from 'lucide-react'
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { useAuth } from '@/hooks/use-auth'
 
 // Dynamically import React Flow to avoid SSR issues
 const LandingFlowDemo = dynamic(() => import('@/components/landing-flow-demo'), {
@@ -57,6 +59,7 @@ export default function LandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({})
   const [mounted, setMounted] = useState(false)
+  const { isAuthenticated } = useAuth()
   
   // Refs for scroll animations
   const statsRef = useRef<HTMLDivElement>(null)
@@ -74,16 +77,7 @@ export default function LandingPage() {
       duration: `${15 + (i * 0.7) % 10}s`
     })), []
   )
-  
-  // Generate stable values for CTA background circles
-  const ctaCircles = useMemo(() =>
-    Array.from({ length: 6 }, (_, i) => ({
-      id: i,
-      left: `${i * 20}%`,
-      delay: `${i * 2}s`,
-      duration: `${10 + i * 2}s`
-    })), []
-  )
+
 
   useEffect(() => {
     setMounted(true)
@@ -178,7 +172,7 @@ export default function LandingPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Floating orbs */}
@@ -211,39 +205,60 @@ export default function LandingPage() {
         ))}
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 container mx-auto px-4 py-6">
-        <nav className="flex items-center justify-between backdrop-blur-sm bg-white/50 dark:bg-gray-900/50 rounded-2xl px-6 py-4 shadow-lg animate-slideDown">
-          <div className="flex items-center space-x-3">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur animate-pulse" />
-              <div className="relative w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center transform transition-transform group-hover:rotate-12">
-                <Sparkles className="text-white w-6 h-6 animate-spin-slow" />
+      {/* Header - Fixed */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-transparent dark:bg-gray-900/80 backdrop-blur-md ">
+        <div className="container mx-auto px-4 py-6">
+          <nav className="flex items-center justify-between backdrop-blur-sm bg-white/50 dark:bg-gray-900/50 rounded-2xl px-6 py-4 shadow-lg">
+            <div className="flex items-center space-x-3">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur animate-pulse" />
+                <div className="relative w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center transform transition-transform group-hover:rotate-12">
+                  <Sparkles className="text-white w-6 h-6 animate-spin-slow" />
+                </div>
               </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Flower
+              </span>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Flower
-            </span>
-          </div>
-          <div className="hidden md:flex items-center space-x-8">
-            {/* Navigation removed as requested */}
-          </div>
-          <div className="flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">Sign In</Button>
-            </Link>
-            <Link href="/register">
-              <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse-slow">
-                Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
-              </Button>
-            </Link>
-          </div>
-        </nav>
+            <div className="hidden md:flex items-center space-x-8">
+              {/* Navigation removed as requested */}
+            </div>
+            <div className="flex items-center space-x-4">
+              {isAuthenticated ? (
+                <>
+                  <Link href="/projects">
+                    <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Link href="/projects">
+                    <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                      View Projects
+                      <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">Sign In</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse-slow">
+                      Get Started Free
+                      <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
       </header>
 
       {/* Hackathon Partners Banner */}
-      <section className="relative z-10 py-6 bg-gradient-to-r from-purple-900/10 via-pink-900/10 to-blue-900/10 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-blue-900/20 backdrop-blur-sm border-b border-purple-200/20 dark:border-purple-800/20">
+      <section className="relative z-10 py-6 mt-24 bg-gradient-to-r from-purple-900/10 via-pink-900/10 to-blue-900/10 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-blue-900/20 backdrop-blur-sm border-b border-purple-200/20 dark:border-purple-800/20">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <div className="flex items-center gap-3">
@@ -299,7 +314,7 @@ export default function LandingPage() {
               >
                 <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-pulse" />
                 <span className="text-sm font-medium bg-gradient-to-r from-orange-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Cerebras × Cline Hackathon 2024
+                  Cerebras × Cline Hackathon 2025
                 </span>
                 <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400 animate-pulse" />
               </div>
@@ -664,7 +679,7 @@ export default function LandingPage() {
             {testimonials.map((testimonial, index) => (
               <Card 
                 key={testimonial.name}
-                className={`relative hover:shadow-xl transition-all hover:-translate-y-2 h-full ${
+                className={`relative hover:shadow-xl transition-all hover:-translate-y-2 py-4 h-full ${
                   isVisible.testimonials ? 'animate-slideUp' : 'opacity-0'
                 }`}
                 style={{ 
@@ -703,41 +718,45 @@ export default function LandingPage() {
 
         {/* CTA Section */}
         <section ref={ctaRef} id="cta" className="py-20 text-center">
-          <div className={`relative max-w-4xl mx-auto ${isVisible.cta ? 'animate-slideUp' : 'opacity-0'}`}>
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-3xl opacity-20 animate-pulse" />
-            <div className="relative bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl p-12 text-white overflow-hidden group">
-              {/* Animated background pattern */}
-              <div className="absolute inset-0 opacity-10">
-                {mounted && ctaCircles.map((circle) => (
-                  <div
-                    key={circle.id}
-                    className="absolute w-64 h-64 bg-white rounded-full animate-float"
-                    style={{
-                      left: circle.left,
-                      animationDelay: circle.delay,
-                      animationDuration: circle.duration
-                    }}
-                  />
-                ))}
-              </div>
+          <div className={`relative max-w-3xl mx-auto ${isVisible.cta ? 'animate-slideUp' : 'opacity-0'}`}>
+            <div className="relative w-full h-80 bg-white rounded-2xl overflow-hidden shadow-xl">
+              {/* Purple Glow Top */}
+              <div
+                className="absolute inset-0 z-0"
+                style={{
+                  background: "#ffffff",
+                  backgroundImage: `
+                    radial-gradient(
+                      circle at top center,
+                      rgba(173, 109, 244, 0.5),
+                      transparent 70%
+                    )
+                  `,
+                  filter: "blur(80px)",
+                  backgroundRepeat: "no-repeat",
+                }}
+              />
               
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6 relative z-10">
-                <Layers className="w-5 h-5" />
-                <span className="text-sm font-medium">No-Code Workflow Builder</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 relative z-10 animate-fadeIn">
-                Start Building Your Workflow in Minutes
-              </h2>
-              <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto relative z-10 animate-fadeIn animation-delay-200">
-                Drag, drop, connect. Create powerful automations with our visual workflow builder powered by AI.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10 animate-fadeIn animation-delay-400">
-                <Link href="/register">
-                  <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-10 py-6 shadow-xl hover:shadow-2xl transition-all hover:scale-105 hover:-translate-y-1 group">
-                    Get Started for Free
-                    <Rocket className="ml-2 h-5 w-5 group-hover:animate-bounce" />
-                  </Button>
-                </Link>
+              {/* Content Container */}
+              <div className="relative z-10 h-full flex flex-col justify-center items-center px-8 py-12">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-100/50 backdrop-blur-sm rounded-full mb-4">
+                  <Layers className="w-4 h-4 text-purple-600" />
+                  <span className="text-xs font-medium text-purple-700">No-Code Workflow Builder</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-3 text-gray-900 animate-fadeIn">
+                  Start Building Your Workflow in Minutes
+                </h2>
+                <p className="text-sm mb-6 text-gray-600 max-w-md mx-auto animate-fadeIn animation-delay-200">
+                  Drag, drop, connect. Create powerful automations with our visual workflow builder powered by AI.
+                </p>
+                <div className="animate-fadeIn animation-delay-400">
+                  <Link href="/register">
+                    <Button size="sm" variant="gradient" className="px-6 py-3 shadow-lg hover:shadow-xl transition-all hover:scale-105 hover:-translate-y-1 group">
+                      Get Started for Free
+                      <Rocket className="ml-2 h-4 w-4 group-hover:animate-bounce" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -818,7 +837,7 @@ export default function LandingPage() {
         </div>
         <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-200 dark:border-gray-800">
           <div className="text-gray-700 dark:text-gray-300 mb-4 md:mb-0">
-            © 2024 Flower - Cerebras × Cline Hackathon Project
+            © 2025 Flower - Cerebras × Cline Hackathon Project
           </div>
           <div className="flex space-x-6">
             <Link href="/privacy" className="text-gray-700 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors hover:scale-110">

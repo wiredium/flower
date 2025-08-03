@@ -32,7 +32,7 @@ import {
 export default function HistoryPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [searchQuery, setSearchQuery] = useState("")
-  const { projects, setProjects, setFilters, isLoading, filters } = useProjectStore()
+  const { projects, setProjects, deleteProject, setFilters, filters } = useProjectStore()
   
   // Apply filters inline to avoid selector issues
   const filteredProjects = React.useMemo(() => {
@@ -48,7 +48,7 @@ export default function HistoryPage() {
     
     if (filters.tags && filters.tags.length > 0) {
       filtered = filtered.filter((p) =>
-        filters.tags!.some((tag) => p.tags.includes(tag))
+        filters.tags?.some((tag) => p.tags.includes(tag))
       )
     }
     
@@ -96,13 +96,12 @@ export default function HistoryPage() {
     }
   }, [data, setProjects])
   
-  const deleteMutation = trpc.project.delete.useMutation()
-  
-  useEffect(() => {
-    if (deleteMutation.isSuccess && deleteMutation.variables) {
-      setProjects(projects.filter(p => p.id !== deleteMutation.variables.id))
+  const deleteMutation = trpc.project.delete.useMutation({
+    onSuccess: (data: unknown, variables: { id: string }) => {
+      // Use the store's deleteProject method instead of manual filtering
+      deleteProject(variables.id)
     }
-  }, [deleteMutation.isSuccess, deleteMutation.variables, projects])
+  })
   
   const handleSearch = (query: string) => {
     setSearchQuery(query)
