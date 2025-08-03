@@ -13,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     defaultOptions: {
       queries: {
         staleTime: 1000 * 60 * 5, // 5 minutes
-        cacheTime: 1000 * 60 * 10, // 10 minutes
+        gcTime: 1000 * 60 * 10, // 10 minutes (renamed from cacheTime)
         refetchOnWindowFocus: false,
       },
     },
@@ -21,15 +21,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
   
   const [trpcClient] = useState(() =>
     trpc.createClient({
-      transformer: superjson,
       links: [
         httpBatchLink({
           url: getTRPCUrl(),
+          transformer: superjson,
           headers() {
             const headers: Record<string, string> = {}
             
             if (typeof window !== 'undefined') {
-              const token = localStorage.getItem('access_token')
+              const token = localStorage.getItem('accessToken')
               if (token) {
                 headers.authorization = `Bearer ${token}`
               }
@@ -42,7 +42,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             
             // Handle token refresh
             if (response.status === 401) {
-              const refreshToken = localStorage.getItem('refresh_token')
+              const refreshToken = localStorage.getItem('refreshToken')
               if (refreshToken) {
                 try {
                   const refreshResponse = await fetch(`${getTRPCUrl()}/auth.refresh`, {
@@ -59,9 +59,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     const data = await refreshResponse.json()
                     const result = data.result?.data?.json
                     if (result?.accessToken) {
-                      localStorage.setItem('access_token', result.accessToken)
+                      localStorage.setItem('accessToken', result.accessToken)
                       if (result.refreshToken) {
-                        localStorage.setItem('refresh_token', result.refreshToken)
+                        localStorage.setItem('refreshToken', result.refreshToken)
                       }
                       
                       // Retry original request with new token
@@ -74,8 +74,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 } catch (error) {
                   console.error('Token refresh failed:', error)
                   // Clear tokens and redirect to login
-                  localStorage.removeItem('access_token')
-                  localStorage.removeItem('refresh_token')
+                  localStorage.removeItem('accessToken')
+                  localStorage.removeItem('refreshToken')
                   window.location.href = '/login'
                 }
               }

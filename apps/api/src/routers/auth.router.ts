@@ -17,7 +17,7 @@ export const authRouter = router({
   register: publicProcedure
     .input(registerSchema)
     .mutation(async ({ input }) => {
-      return authService.register(input.email, input.password, input.name)
+      return authService.register(input.email, input.password, input.name, input.username)
     }),
 
   // Login

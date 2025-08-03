@@ -75,42 +75,67 @@ export class AuthService {
   /**
    * Register a new user
    */
-  async register(email: string, password: string, name?: string) {
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
-
-    if (existingUser) {
-      throw new TRPCError({
-        code: 'CONFLICT',
-        message: 'User with this email already exists',
+  async register(email: string, password: string, name?: string, username?: string) {
+    try {
+      // Check if user already exists
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
       })
-    }
 
-    // Hash password and create user
-    const hashedPassword = await this.hashPassword(password)
-    
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        hashedPassword,
-      },
-    })
+      if (existingUser) {
+        throw new TRPCError({
+          code: 'CONFLICT',
+          message: 'User with this email already exists',
+        })
+      }
 
-    // Generate tokens
-    const tokens = this.generateTokens(user)
+      // Hash password and create user
+      const hashedPassword = await this.hashPassword(password)
+      
+      const user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          hashedPassword,
+        },
+      })
 
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        credits: user.credits,
-      },
-      ...tokens,
+      // Generate tokens
+      const tokens = this.generateTokens(user)
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          credits: user.credits,
+          avatarUrl: user.avatarUrl,
+        },
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      }
+    } catch (error) {
+      // If it's already a TRPCError, re-throw it
+      if (error instanceof TRPCError) {
+        throw error
+      }
+      
+      // Handle Prisma errors
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'P2002') {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'User with this email already exists',
+          })
+        }
+      }
+
+      // Handle other errors
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to register user',
+      })
     }
   }
 
@@ -150,8 +175,10 @@ export class AuthService {
         name: user.name,
         role: user.role,
         credits: user.credits,
+        avatarUrl: user.avatarUrl,
       },
-      ...tokens,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     }
   }
 
@@ -184,8 +211,10 @@ export class AuthService {
         name: user.name,
         role: user.role,
         credits: user.credits,
+        avatarUrl: user.avatarUrl,
       },
-      ...tokens,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     }
   }
 

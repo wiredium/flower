@@ -10,7 +10,8 @@ export function useAuth() {
   
   const loginMutation = trpc.auth.login.useMutation({
     onSuccess: (data) => {
-      storeLogin(data.user, data.tokens)
+      const tokens = { accessToken: data.accessToken, refreshToken: data.refreshToken }
+      storeLogin(data.user, tokens)
       router.push('/projects')
     },
     onError: (error) => {
@@ -20,7 +21,8 @@ export function useAuth() {
   
   const registerMutation = trpc.auth.register.useMutation({
     onSuccess: (data) => {
-      storeLogin(data.user, data.tokens)
+      const tokens = { accessToken: data.accessToken, refreshToken: data.refreshToken }
+      storeLogin(data.user, tokens)
       router.push('/projects')
     },
     onError: (error) => {
@@ -71,7 +73,7 @@ export function useAuth() {
   }
   
   const refreshToken = async () => {
-    const refreshToken = localStorage.getItem('refresh_token')
+    const refreshToken = localStorage.getItem('refreshToken')
     if (!refreshToken) {
       storeLogout()
       return false
@@ -99,7 +101,7 @@ export function useAuth() {
   
   useEffect(() => {
     // Check for existing token on mount
-    const token = localStorage.getItem('access_token')
+    const token = localStorage.getItem('accessToken')
     if (token && !user) {
       // Token exists but no user data, fetch it
       setLoading(true)

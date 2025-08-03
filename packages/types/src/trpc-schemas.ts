@@ -25,6 +25,7 @@ export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().optional(),
+  username: z.string().optional(), // Optional username field for future use
 })
 
 export const changePasswordSchema = z.object({
