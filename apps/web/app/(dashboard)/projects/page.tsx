@@ -25,7 +25,8 @@ import {
   Trash,
   Copy,
   Lock,
-  Globe
+  Globe,
+  FolderOpen
 } from "lucide-react"
 
 export default function ProjectsPage() {

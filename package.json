@@ -17,5 +17,9 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "@radix-ui/react-tabs": "^1.1.12",
+    "immer": "^10.1.1"
   }
 }

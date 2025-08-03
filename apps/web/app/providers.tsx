@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { trpc, getTRPCUrl } from '@/lib/trpc'
 import superjson from 'superjson'
 import { ToastProvider } from '@packages/ui/src/toast'
+import { getCookie, setCookie, deleteCookie } from '@/lib/cookies'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -45,7 +46,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
               const refreshToken = localStorage.getItem('refreshToken')
               if (refreshToken) {
                 try {
-                  const refreshResponse = await fetch(`${getTRPCUrl()}/auth.refresh`, {
+                  const refreshResponse = await fetch(`${getTRPCUrl()}/auth.refreshToken`, {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -59,9 +60,24 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     const data = await refreshResponse.json()
                     const result = data.result?.data?.json
                     if (result?.accessToken) {
+                      // Update localStorage
                       localStorage.setItem('accessToken', result.accessToken)
                       if (result.refreshToken) {
                         localStorage.setItem('refreshToken', result.refreshToken)
+                      }
+                      
+                      // Update cookies
+                      setCookie('access_token', result.accessToken, { 
+                        expires: new Date(Date.now() + 15 * 60 * 1000),
+                        path: '/',
+                        sameSite: 'lax'
+                      })
+                      if (result.refreshToken) {
+                        setCookie('refresh_token', result.refreshToken, { 
+                          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                          path: '/',
+                          sameSite: 'lax'
+                        })
                       }
                       
                       // Retry original request with new token
@@ -76,6 +92,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   // Clear tokens and redirect to login
                   localStorage.removeItem('accessToken')
                   localStorage.removeItem('refreshToken')
+                  deleteCookie('access_token')
+                  deleteCookie('refresh_token')
                   window.location.href = '/login'
                 }
               }

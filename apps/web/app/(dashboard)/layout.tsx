@@ -8,7 +8,6 @@ import { Sidebar, SidebarItem, SidebarSection, SidebarSectionTitle } from "@pack
 import { Button } from "@packages/ui/src/button"
 import { useAuth } from "@/hooks/use-auth"
 import {
-  Home,
   FolderOpen,
   Layout,
   Sparkles,
