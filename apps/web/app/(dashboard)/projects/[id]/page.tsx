@@ -45,57 +45,72 @@ export default function ProjectPage() {
     setDirty
   } = useWorkflowStore()
   
-  const { data: project, isLoading } = trpc.project.get.useQuery(
-    { id: projectId },
-    {
-      onSuccess: (data) => {
-        setCurrentProject(data)
-        setWorkflow(data.workflow)
-      }
-    }
+  const { data: project, isPending: isLoading } = trpc.project.get.useQuery(
+    { id: projectId }
   )
   
-  const updateMutation = trpc.project.updateWorkflow.useMutation({
-    onSuccess: () => {
+  useEffect(() => {
+    if (project) {
+      const projectData = {
+        ...project,
+        workflow: project.workflowData || { nodes: [], edges: [], variables: [] }
+      } as any
+      setCurrentProject(projectData)
+      setWorkflow(projectData.workflow)
+    }
+  }, [project])
+  
+  const updateMutation = trpc.project.update.useMutation()
+  
+  useEffect(() => {
+    if (updateMutation.isSuccess) {
       toast({
         title: "Workflow saved",
         description: "Your changes have been saved successfully",
         variant: "success"
       })
       setDirty(false)
-    },
-    onError: (error) => {
+    }
+  }, [updateMutation.isSuccess])
+  
+  useEffect(() => {
+    if (updateMutation.isError) {
       toast({
         title: "Save failed",
-        description: error.message,
+        description: updateMutation.error.message,
         variant: "destructive"
       })
     }
-  })
+  }, [updateMutation.isError])
   
-  const executeMutation = trpc.workflow.execute.useMutation({
-    onSuccess: (data) => {
+  const executeMutation = trpc.workflow.execute.useMutation()
+  
+  useEffect(() => {
+    if (executeMutation.isSuccess) {
       toast({
         title: "Workflow executed",
         description: "Check the execution tab for results",
         variant: "success"
       })
-    },
-    onError: (error) => {
+    }
+  }, [executeMutation.isSuccess])
+  
+  useEffect(() => {
+    if (executeMutation.isError) {
       toast({
         title: "Execution failed",
-        description: error.message,
+        description: executeMutation.error.message,
         variant: "destructive"
       })
     }
-  })
+  }, [executeMutation.isError])
   
   const handleSave = async () => {
     if (!workflow || !projectId) return
     
     await updateMutation.mutateAsync({
       id: projectId,
-      workflow: {
+      workflowData: {
         nodes: workflow.nodes,
         edges: workflow.edges,
         variables: workflow.variables
@@ -107,8 +122,8 @@ export default function ProjectPage() {
     if (!workflow) return
     
     await executeMutation.mutateAsync({
-      workflowId: workflow.id,
-      input: {}
+      projectId: projectId,
+      variables: {}
     })
   }
   
@@ -171,7 +186,7 @@ export default function ProjectPage() {
             variant="outline"
             size="sm"
             onClick={handleSave}
-            disabled={!isDirty || updateMutation.isLoading}
+            disabled={!isDirty || updateMutation.isPending}
           >
             <Save className="h-4 w-4 mr-1" />
             Save
@@ -180,7 +195,7 @@ export default function ProjectPage() {
             variant="default"
             size="sm"
             onClick={handleExecute}
-            disabled={isExecuting || executeMutation.isLoading}
+            disabled={isExecuting || executeMutation.isPending}
           >
             <Play className="h-4 w-4 mr-1" />
             Run

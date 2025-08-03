@@ -71,13 +71,13 @@ export const useWorkflowStore = create<WorkflowState>()(
     setWorkflow: (workflow) =>
       set((state) => {
         state.workflow = workflow
-        state.nodes = workflow.nodes.map((node) => ({
+        state.nodes = (workflow.nodes || []).map((node) => ({
           id: node.id,
           type: node.type,
           position: node.position,
           data: node.data
         })) as Node[]
-        state.edges = workflow.edges.map((edge) => ({
+        state.edges = (workflow.edges || []).map((edge) => ({
           id: edge.id,
           source: edge.source,
           target: edge.target,
@@ -87,7 +87,7 @@ export const useWorkflowStore = create<WorkflowState>()(
           type: edge.type,
           animated: edge.animated
         })) as Edge[]
-        state.variables = workflow.variables
+        state.variables = workflow.variables || []
         state.isDirty = false
       }),
     
@@ -163,7 +163,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       set((state) => {
         const index = state.nodes.findIndex((n) => n.id === id)
         if (index !== -1) {
-          state.nodes[index] = { ...state.nodes[index], ...data }
+          state.nodes[index] = { ...state.nodes[index], ...data } as Node
           state.isDirty = true
         }
       }),
@@ -185,7 +185,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       set((state) => {
         const index = state.edges.findIndex((e) => e.id === id)
         if (index !== -1) {
-          state.edges[index] = { ...state.edges[index], ...data }
+          state.edges[index] = { ...state.edges[index], ...data } as Edge
           state.isDirty = true
         }
       }),
@@ -218,7 +218,7 @@ export const useWorkflowStore = create<WorkflowState>()(
       set((state) => {
         const index = state.variables.findIndex((v) => v.name === name)
         if (index !== -1) {
-          state.variables[index] = { ...state.variables[index], ...updates }
+          state.variables[index] = { ...state.variables[index], ...updates } as WorkflowVariable
           state.isDirty = true
         }
       }),

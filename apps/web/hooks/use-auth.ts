@@ -8,47 +8,66 @@ export function useAuth() {
   const router = useRouter()
   const { user, isAuthenticated, setUser, setTokens, login: storeLogin, logout: storeLogout, setLoading } = useAuthStore()
   
-  const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: (data) => {
-      const tokens = { accessToken: data.accessToken, refreshToken: data.refreshToken }
-      storeLogin(data.user, tokens)
-      router.push('/projects')
-    },
-    onError: (error) => {
-      console.error('Login failed:', error)
-    }
-  })
+  const loginMutation = trpc.auth.login.useMutation()
   
-  const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: (data) => {
-      const tokens = { accessToken: data.accessToken, refreshToken: data.refreshToken }
-      storeLogin(data.user, tokens)
-      router.push('/projects')
-    },
-    onError: (error) => {
-      console.error('Registration failed:', error)
-    }
-  })
+  const registerMutation = trpc.auth.register.useMutation()
   
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
-      storeLogout()
-      router.push('/login')
-    }
-  })
-  
-  const { data: userData, isLoading: isLoadingUser } = trpc.auth.me.useQuery(undefined, {
+  const { data: userData, isPending: isLoadingUser } = trpc.auth.me.useQuery(undefined, {
     enabled: isAuthenticated && !user,
-    retry: false,
-    onSuccess: (data) => {
-      if (data) {
-        setUser(data)
-      }
-    },
-    onError: () => {
-      storeLogout()
-    }
+    retry: false
   })
+  
+  // Handle success/error effects for mutations
+  useEffect(() => {
+    if (loginMutation.isSuccess && loginMutation.data) {
+      const tokens = { accessToken: loginMutation.data.accessToken, refreshToken: loginMutation.data.refreshToken }
+      const user = {
+        ...loginMutation.data.user,
+        username: loginMutation.data.user.email?.split('@')[0] || 'user',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as any
+      storeLogin(user, tokens)
+      router.push('/projects')
+    }
+  }, [loginMutation.isSuccess, loginMutation.data])
+  
+  useEffect(() => {
+    if (registerMutation.isSuccess && registerMutation.data) {
+      const tokens = { accessToken: registerMutation.data.accessToken, refreshToken: registerMutation.data.refreshToken }
+      const user = {
+        ...registerMutation.data.user,
+        username: registerMutation.data.user.email?.split('@')[0] || 'user',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as any
+      storeLogin(user, tokens)
+      router.push('/projects')
+    }
+  }, [registerMutation.isSuccess, registerMutation.data])
+  
+  useEffect(() => {
+    if (userData) {
+      const user = {
+        ...userData,
+        username: userData.email?.split('@')[0] || 'user',
+        updatedAt: new Date()
+      } as any
+      setUser(user)
+    }
+  }, [userData])
+  
+  useEffect(() => {
+    if (loginMutation.isError) {
+      console.error('Login failed:', loginMutation.error)
+    }
+  }, [loginMutation.isError])
+  
+  useEffect(() => {
+    if (registerMutation.isError) {
+      console.error('Registration failed:', registerMutation.error)
+    }
+  }, [registerMutation.isError])
   
   const login = async (data: LoginInput) => {
     setLoading(true)
@@ -69,7 +88,8 @@ export function useAuth() {
   }
   
   const logout = async () => {
-    await logoutMutation.mutateAsync()
+    storeLogout()
+    router.push('/login')
   }
   
   const refreshToken = async () => {
@@ -111,7 +131,7 @@ export function useAuth() {
   return {
     user,
     isAuthenticated,
-    isLoading: isLoadingUser || loginMutation.isLoading || registerMutation.isLoading,
+    isLoading: isLoadingUser || loginMutation.isPending || registerMutation.isPending,
     login,
     register,
     logout,

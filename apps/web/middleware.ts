@@ -5,7 +5,6 @@ import type { NextRequest } from 'next/server'
 const protectedRoutes = [
   '/projects',
   '/templates',
-  '/showcase',
   '/settings',
 ]
 

@@ -48,10 +48,10 @@ export const useProjectStore = create<ProjectState>()(
       set((state) => {
         const index = state.projects.findIndex((p) => p.id === id)
         if (index !== -1) {
-          state.projects[index] = { ...state.projects[index], ...updates }
+          state.projects[index] = { ...state.projects[index], ...updates } as Project
         }
         if (state.currentProject?.id === id) {
-          state.currentProject = { ...state.currentProject, ...updates }
+          state.currentProject = { ...state.currentProject, ...updates } as Project
         }
       }),
     
@@ -101,11 +101,11 @@ export const selectFilteredProjects = (state: ProjectState) => {
   let filtered = [...state.projects]
   
   if (state.filters.visibility && state.filters.visibility !== 'all') {
-    filtered = filtered.filter((p) => p.visibility === state.filters.visibility)
+    filtered = filtered.filter((p) => p.visibility?.toLowerCase() === state.filters.visibility)
   }
   
   if (state.filters.status && state.filters.status !== 'all') {
-    filtered = filtered.filter((p) => p.status === state.filters.status)
+    filtered = filtered.filter((p) => p.status?.toLowerCase() === state.filters.status)
   }
   
   if (state.filters.tags && state.filters.tags.length > 0) {

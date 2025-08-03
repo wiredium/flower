@@ -21,7 +21,7 @@ export function useSSE(endpoint: string, options: UseSSEOptions = {}) {
   
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectAttemptsRef = useRef(0)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   const connect = useCallback(() => {
     // Clean up existing connection

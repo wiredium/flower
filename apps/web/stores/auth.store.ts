@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { User, AuthTokens } from '@/types'
+import { setCookie, deleteCookie } from '@/lib/cookies'
 
 interface AuthState {
   user: User | null
@@ -31,9 +32,21 @@ export const useAuthStore = create<AuthState>()(
         if (tokens) {
           localStorage.setItem('accessToken', tokens.accessToken)
           localStorage.setItem('refreshToken', tokens.refreshToken)
+          setCookie('access_token', tokens.accessToken, { 
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+            path: '/',
+            sameSite: 'lax'
+          })
+          setCookie('refresh_token', tokens.refreshToken, { 
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            path: '/',
+            sameSite: 'lax'
+          })
         } else {
           localStorage.removeItem('accessToken')
           localStorage.removeItem('refreshToken')
+          deleteCookie('access_token')
+          deleteCookie('refresh_token')
         }
         set({ tokens })
       },
@@ -41,12 +54,24 @@ export const useAuthStore = create<AuthState>()(
       login: (user, tokens) => {
         localStorage.setItem('accessToken', tokens.accessToken)
         localStorage.setItem('refreshToken', tokens.refreshToken)
+        setCookie('access_token', tokens.accessToken, { 
+          expires: new Date(Date.now() + 15 * 60 * 1000),
+          path: '/',
+          sameSite: 'lax'
+        })
+        setCookie('refresh_token', tokens.refreshToken, { 
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          path: '/',
+          sameSite: 'lax'
+        })
         set({ user, tokens, isAuthenticated: true })
       },
       
       logout: () => {
         localStorage.removeItem('accessToken')
         localStorage.removeItem('refreshToken')
+        deleteCookie('access_token')
+        deleteCookie('refresh_token')
         set({ user: null, tokens: null, isAuthenticated: false })
       },
       

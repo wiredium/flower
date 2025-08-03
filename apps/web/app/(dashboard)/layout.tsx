@@ -17,7 +17,9 @@ import {
   Bell,
   User,
   Search,
-  Menu
+  Menu,
+  History,
+  Zap
 } from "lucide-react"
 
 export default function DashboardLayout({
@@ -31,7 +33,8 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   const navigation = [
-    { name: "Projects", href: "/projects", icon: FolderOpen },
+    { name: "Create Project", href: "/projects", icon: Zap },
+    { name: "History", href: "/history", icon: History },
     { name: "Templates", href: "/templates", icon: Layout },
     { name: "Showcase", href: "/showcase", icon: Sparkles },
   ]
@@ -74,10 +77,12 @@ export default function DashboardLayout({
             <Button variant="ghost" size="icon">
               <Bell className="h-5 w-5" />
             </Button>
-            <Button variant="outline" size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              New Project
-            </Button>
+            <Link href="/projects">
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                New Project
+              </Button>
+            </Link>
             <div className="ml-2 flex items-center space-x-2">
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
