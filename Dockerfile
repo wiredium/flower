@@ -29,7 +29,11 @@ COPY packages ./packages
 # Generate Prisma client
 RUN pnpm -F @repo/database db:generate
 
-# Build all packages
+# Build all packages with environment variables for Next.js
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 RUN pnpm build
 
 # Production stage for API
