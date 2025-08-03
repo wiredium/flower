@@ -1,18 +1,14 @@
 /**
  * tRPC-related type definitions
+ * 
+ * Note: The actual tRPC types are defined in the web app's lib/trpc.ts
+ * This file is kept for backward compatibility but should not import from API
  */
 
-import type { AppRouter } from '../../../apps/api/src/routers/index.js'
-import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
-
-// Type helpers for the API
-export type RouterInputs = inferRouterInputs<AppRouter>
-export type RouterOutputs = inferRouterOutputs<AppRouter>
-
-// Specific router types
-export type UserRouterInputs = RouterInputs['user']
-export type UserRouterOutputs = RouterOutputs['user']
-export type HealthRouterOutputs = RouterOutputs['health']
-
-// Re-export the AppRouter type
-export type { AppRouter }
+// Export empty types to avoid circular dependencies
+// The actual types are handled in the web app
+export type RouterInputs = any
+export type RouterOutputs = any
+export type UserRouterInputs = any
+export type UserRouterOutputs = any
+export type HealthRouterOutputs = any
