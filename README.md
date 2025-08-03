@@ -22,7 +22,7 @@
     
   </p>
   <p align="center">
-  ✨ <a href="http://localhost:3000">Live Demo</a> ✨ 
+  ✨ <a href="https://www.youtube.com/watch?v=sr8mexHqYNU">Flower Demo Video</a> ✨ 
 </p>
 </div>
 
