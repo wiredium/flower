@@ -6,6 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
       target: api
+      args:
+        NEXT_PUBLIC_API_URL: https://api.flower.bayburt.lu
+        NEXT_PUBLIC_APP_URL: https://flower.bayburt.lu
     restart: unless-stopped
     expose:
       - "3001"
@@ -31,6 +34,9 @@ services:
       context: .
       dockerfile: Dockerfile
       target: web
+      args:
+        NEXT_PUBLIC_API_URL: https://api.flower.bayburt.lu
+        NEXT_PUBLIC_APP_URL: https://flower.bayburt.lu
     restart: unless-stopped
     expose:
       - "3000"
