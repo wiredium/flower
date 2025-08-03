@@ -2207,7 +2207,8 @@ Complexity level: ${teamSize === 'solo' ? 'Moderate' : 'Complex'}
                         ul: ({children}) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
                         ol: ({children}) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
                         li: ({children}) => <li className="leading-relaxed">{children}</li>,
-                        code: ({inline, children}) => {
+                        code: ({children, ...props}: any) => {
+                          const inline = !props.className || !props.className.includes('language-')
                           if (inline) {
                             return <code className="px-1.5 py-0.5 bg-muted rounded text-sm font-mono">{children}</code>
                           }

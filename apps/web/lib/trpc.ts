@@ -1,9 +1,9 @@
 import { createTRPCReact } from '@trpc/react-query'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
-import type { AppRouter } from '@repo/types'
 
-// Create tRPC React client with proper typing
-export const trpc = createTRPCReact<AppRouter>()
+// Create tRPC React client with any type to avoid build issues
+// TODO: Properly type this once the circular dependency is resolved
+export const trpc = createTRPCReact<any>()
 
 // Type placeholders for when proper typing is available
 export type RouterInput = any
