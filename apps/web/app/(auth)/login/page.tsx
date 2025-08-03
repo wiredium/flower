@@ -4,6 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@packages/ui/src/button'
+import { trpc } from '@/lib/trpc'
+import { setCookie } from '@/lib/cookies'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,24 +14,44 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const loginMutation = trpc.auth.login.useMutation({
+    onSuccess: (data) => {
+      // Store tokens in localStorage
+      localStorage.setItem('accessToken', data.accessToken)
+      localStorage.setItem('refreshToken', data.refreshToken)
+      
+      // Also set as cookies for middleware
+      setCookie('access_token', data.accessToken, { 
+        expires: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+        path: '/',
+        sameSite: 'lax'
+      })
+      setCookie('refresh_token', data.refreshToken, { 
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        path: '/',
+        sameSite: 'lax'
+      })
+      
+      // Redirect to dashboard
+      router.push('/projects')
+    },
+    onError: (error) => {
+      setError(error.message || 'Invalid email or password')
+    },
+    onSettled: () => {
+      setLoading(false)
+    },
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
-
-    try {
-      // This would call your tRPC auth.login mutation
-      // For now, we'll just simulate it
-      console.log('Login attempt:', { email, password })
-      
-      // Simulate success and redirect
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 1000)
-    } catch (err) {
-      setError('Invalid email or password')
-      setLoading(false)
-    }
+    
+    loginMutation.mutate({
+      email,
+      password,
+    })
   }
 
   return (
@@ -100,7 +122,7 @@ export default function LoginPage() {
               variant="gradient"
               className="w-full"
               size="lg"
-              loading={loading}
+              loading={loading || loginMutation.isPending}
             >
               Sign In
             </Button>
