@@ -41,3 +41,6 @@ yarn-error.log*
 .claude
 CLAUDE.md
 .vercel
+CLAUDE.md
+FLOWER_IMPLEMENTATION_PLAN.md
+BACKEND_COMPLETION_REPORT.md

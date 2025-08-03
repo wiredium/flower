@@ -1,4 +1,5 @@
 <div align="center">
+<img src="images/flower-banner.png" alt="flower logo" width="600">
   <h1 align="center">🌸 Flower</h1>
   <p align="center">
     <strong>AI-Powered Workflow Builder & BRD Generator</strong>
@@ -18,20 +19,19 @@
     <img src="https://img.shields.io/badge/Hackathon-Cerebras%20×%20Cline-orange?style=for-the-badge" alt="Hackathon">
     <img src="https://img.shields.io/badge/TypeScript-100%25-blue?style=for-the-badge&logo=typescript" alt="TypeScript">
     <img src="https://img.shields.io/badge/AI-Powered-purple?style=for-the-badge&logo=openai" alt="AI Powered">
+    
   </p>
+  <p align="center">
+  ✨ <a href="http://localhost:3000">Live Demo</a> ✨ 
+</p>
 </div>
 
 ---
 
 **Flower** is a revolutionary AI-powered workflow builder that transforms abstract project ideas into concrete, executable plans and comprehensive Business Requirements Documents (BRDs). Built specifically for the **Cerebras × Cline Hackathon**, Flower bridges the gap between ideation and implementation by leveraging cutting-edge AI orchestration and seamless local development integration.
 
-### ✨ [Live Demo](http://localhost:3000) | 📋 [Implementation Plan](FLOWER_IMPLEMENTATION_PLAN.md) | 🚀 [Backend Report](BACKEND_COMPLETION_REPORT.md)
 
-<!-- Landing Page Preview -->
-<div align="center">
-  <img src="https://via.placeholder.com/800x400/6366f1/ffffff?text=Flower+AI+Workflow+Builder" alt="Flower Platform Preview" width="100%">
-  <p><em>Flower's intuitive visual workflow builder powered by ReactFlow and AI</em></p>
-</div>
+
 
 ---
 
@@ -291,87 +291,7 @@ flower/
 └── README.md
 ```
 
----
 
-## ✨ Feature Showcase
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>🎨 Visual Workflow Builder</h3>
-      <p>Create complex workflows with our intuitive drag-and-drop interface powered by ReactFlow. Design everything from simple linear processes to complex parallel execution flows.</p>
-      <ul>
-        <li>9 different node types for every workflow need</li>
-        <li>Real-time validation and error detection</li>
-        <li>Smart auto-layout and connection guidance</li>
-        <li>Export to multiple formats including Cline-ready projects</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <img src="https://via.placeholder.com/400x300/6366f1/ffffff?text=Workflow+Builder" alt="Workflow Builder Interface" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="https://via.placeholder.com/400x300/ec4899/ffffff?text=AI+Generation" alt="AI Content Generation" width="100%">
-    </td>
-    <td width="50%" valign="top">
-      <h3>🧠 Intelligent AI Integration</h3>
-      <p>Leverage the power of multiple AI models with our smart orchestration system. Automatically route tasks to the most appropriate model for optimal results and cost efficiency.</p>
-      <ul>
-        <li>Multi-model support (GPT-4, Claude, Llama, Cerebras)</li>
-        <li>Cost-optimized model selection</li>
-        <li>Context-aware prompt engineering</li>
-        <li>Real-time usage tracking and analytics</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>📋 Professional BRD Generation</h3>
-      <p>Transform your workflow designs into comprehensive Business Requirements Documents that stakeholders love and developers can actually use.</p>
-      <ul>
-        <li>Structured, professional formatting</li>
-        <li>Technical specifications with implementation details</li>
-        <li>Stakeholder-specific sections and views</li>
-        <li>Export to PDF, Word, and Markdown formats</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <img src="https://via.placeholder.com/400x300/10b981/ffffff?text=BRD+Generation" alt="BRD Document Generation" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="https://via.placeholder.com/400x300/f59e0b/ffffff?text=Real-time+Collaboration" alt="Real-time Collaboration" width="100%">
-    </td>
-    <td width="50%" valign="top">
-      <h3>🤝 Real-time Collaboration</h3>
-      <p>Work together seamlessly with your team using our real-time collaboration features. See changes as they happen and coordinate effortlessly.</p>
-      <ul>
-        <li>Live cursor tracking and user presence</li>
-        <li>Role-based permissions (Owner, Editor, Viewer)</li>
-        <li>Real-time notifications and updates</li>
-        <li>Conflict resolution and change history</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h3>🏪 Template Marketplace</h3>
-      <p>Accelerate your project development with our curated template marketplace. Find proven workflows for common use cases or share your own successful patterns.</p>
-      <ul>
-        <li>Categorized template library</li>
-        <li>Community ratings and reviews</li>
-        <li>One-click template deployment</li>
-        <li>Template versioning and updates</li>
-      </ul>
-    </td>
-    <td width="50%">
-      <img src="https://via.placeholder.com/400x300/8b5cf6/ffffff?text=Template+Marketplace" alt="Template Marketplace" width="100%">
-    </td>
-  </tr>
-</table>
 
 ---
 
@@ -492,28 +412,6 @@ Flower is designed to be cloud-native and can be deployed on:
 
 ---
 
-## 🎊 Hackathon Context: Cerebras × Cline
-
-This project was built specifically for the **Cerebras × Cline Hackathon**, showcasing the powerful combination of:
-
-### 🧠 Cerebras Integration
-- **Ultra-fast Inference**: Leverage Cerebras's lightning-fast AI processing
-- **Cost-effective AI**: Optimized model routing for budget-conscious development
-- **Scalable Architecture**: Built to handle enterprise-level AI workloads
-
-### 🛠️ Cline Compatibility
-- **Seamless Export**: One-click export to Cline-enabled development environments
-- **Context Preservation**: Maintain project context throughout the development lifecycle
-- **Local Development**: Bridge the gap between planning and implementation
-
-### 🏆 Innovation Highlights
-- **Multi-Model Orchestration**: Intelligent routing between different AI models
-- **Visual Workflow Design**: Intuitive interface for complex process design
-- **Real-time Collaboration**: Live editing and execution monitoring
-- **Professional Documentation**: Auto-generated BRDs and technical specifications
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions from the community! Here's how you can help:
@@ -557,32 +455,8 @@ Have an idea? Open an issue with:
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
----
-
-## 🙏 Acknowledgments
-
-- **Cerebras** for providing cutting-edge AI infrastructure
-- **Cline** for revolutionizing AI-assisted development
-- **OpenRouter** for multi-model AI orchestration
-- **Vercel** for Next.js and deployment platform
-- **Prisma** for type-safe database access
-- **ReactFlow** for visual workflow capabilities
-
----
-
-## 📞 Support & Community
-
-- **Documentation**: [Frontend API Guide](FRONTEND_API_GUIDE.md)
-- **Implementation**: [Development Plan](FLOWER_IMPLEMENTATION_PLAN.md)
-- **Backend Status**: [Completion Report](BACKEND_COMPLETION_REPORT.md)
-- **Issues**: [GitHub Issues](https://github.com/wiredium/flower/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/wiredium/flower/discussions)
-
----
+<br>
 
 <div align="center">
   <p>Built with ❤️ for the Cerebras × Cline Hackathon</p>
-  <p>
-    <strong>Transform your ideas into reality with AI-powered workflow automation</strong>
-  </p>
 </div>
