@@ -1,0 +1,99 @@
+# Dokploy Configuration File
+# This file configures the deployment for Dokploy platform
+
+name: flower-app
+type: docker-compose
+
+# Build configuration
+build:
+  dockerfile: docker-compose.yml
+  
+# Environment configuration
+env:
+  - name: NODE_ENV
+    value: production
+  - name: POSTGRES_PASSWORD
+    generate: password
+  - name: JWT_SECRET
+    generate: secret
+  - name: JWT_REFRESH_SECRET
+    generate: secret
+
+# Services configuration
+services:
+  postgres:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      enabled: true
+      
+  api:
+    domains:
+      - api.${DOKPLOY_DOMAIN}
+    port: 3001
+    healthcheck:
+      path: /health
+      interval: 30s
+    env:
+      - DATABASE_URL
+      - JWT_SECRET
+      - JWT_REFRESH_SECRET
+      - OPENROUTER_API_KEY
+      
+  web:
+    domains:
+      - ${DOKPLOY_DOMAIN}
+      - www.${DOKPLOY_DOMAIN}
+    port: 3000
+    healthcheck:
+      path: /
+      interval: 30s
+    env:
+      - NEXT_PUBLIC_API_URL=https://api.${DOKPLOY_DOMAIN}
+      - NEXT_PUBLIC_APP_URL=https://${DOKPLOY_DOMAIN}
+
+# SSL Configuration
+ssl:
+  enabled: true
+  provider: letsencrypt
+  email: ${SSL_EMAIL}
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *" # Daily at 2 AM
+  retention: 7 # Keep 7 days of backups
+  services:
+    - postgres
+
+# Resource Limits
+resources:
+  postgres:
+    memory: 512M
+    cpu: 0.5
+  api:
+    memory: 1G
+    cpu: 1
+  web:
+    memory: 1G
+    cpu: 1
+
+# Monitoring
+monitoring:
+  enabled: true
+  metrics:
+    - cpu
+    - memory
+    - disk
+    - network
+
+# Auto-scaling (optional)
+autoscale:
+  web:
+    min: 1
+    max: 3
+    cpu_threshold: 80
+  api:
+    min: 1
+    max: 3
+    cpu_threshold: 80
