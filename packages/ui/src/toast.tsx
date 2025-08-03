@@ -57,6 +57,13 @@ export function useToast() {
   return context
 }
 
+// Export toast function for convenience
+export const toast = (options: Omit<Toast, 'id'>) => {
+  // This will be called from components that have access to the useToast hook
+  // The actual implementation should use the useToast hook
+  console.warn('toast() should be called from within a component that uses useToast()')
+}
+
 function ToastContainer({ toasts, dismiss }: { toasts: Toast[], dismiss: (id: string) => void }) {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-md">
