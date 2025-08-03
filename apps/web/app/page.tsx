@@ -11,6 +11,7 @@ import {
   GitBranch, 
   Users, 
   ChevronRight,
+  ChevronDown,
   Star,
   TrendingUp,
   Shield,
@@ -54,6 +55,44 @@ const WorkflowExamples = dynamic(() => import('@/components/workflow-examples'),
     </div>
   ),
 })
+
+// FAQ Item Component
+function FAQItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div 
+      className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300 animate-slideUp"
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      <button
+        type="button"
+        className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+          {question}
+        </h3>
+        <ChevronDown 
+          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400 ${
+            isOpen ? 'transform rotate-180' : ''
+          }`}
+        />
+      </button>
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-out ${
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-6 pb-6 pt-0">
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            {answer}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0)
@@ -344,7 +383,7 @@ export default function LandingPage() {
               <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 mb-6 leading-relaxed animate-slideUp animation-delay-200">
                 Share your idea, get a comprehensive plan, generate BRD docs, and execute locally with 
                 <span className="font-semibold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"> Cerebras</span> × 
-                <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Cline</span>. 
+                <span className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"> Cline</span>. 
                 From concept to code in minutes.
               </p>
               
@@ -720,6 +759,56 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-20 bg-gradient-to-b from-slate-50 to-white dark:from-gray-900 dark:to-gray-950">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full mb-6">
+                <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  Frequently Asked Questions
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                <span className="text-gray-900 dark:text-white">Got </span>
+                <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  Questions?
+                </span>
+              </h2>
+              <p className="text-xl text-gray-700 dark:text-gray-200">
+                Everything you need to know about our AI-powered BRD generator
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  question: "How does the AI-powered BRD generation work?",
+                  answer: "Simply share your project idea and our AI analyzes it using advanced language models. It creates comprehensive project plans, generates detailed todo lists, and produces professional Business Requirements Documents. The AI understands context and creates actionable plans tailored to your specific needs."
+                },
+                {
+                  question: "What is the Cerebras x Cline integration?",
+                  answer: "Our platform seamlessly integrates with Cerebras AI for ultra-fast processing and Cline for local code execution. You can export your generated project plans directly to your local development environment and start building immediately with Cline's AI coding assistant."
+                },
+                {
+                  question: "Can I customize the generated project plans and todo lists?",
+                  answer: "Absolutely! You can select, refine, and customize all generated tasks and plans. The visual workflow builder allows you to modify steps, add your own tasks, and adjust the project structure to match your specific requirements before exporting."
+                },
+                {
+                  question: "What formats can I export my BRD documents in?",
+                  answer: "You can export your Business Requirements Documents in multiple professional formats including PDF, Word documents, and Markdown. We also provide direct integration with popular project management tools and code editors for seamless workflow continuation."
+                },
+                {
+                  question: "Is my project data secure and private?",
+                  answer: "Yes, security is our top priority. All project data is encrypted end-to-end, and we follow SOC2 compliance standards. Your ideas and projects remain completely private and are never shared or used for training purposes. You maintain full ownership of your data."
+                }
+              ].map((faq, index) => (
+                <FAQItem key={faq.question.slice(0, 20)} question={faq.question} answer={faq.answer} index={index} />
+              ))}
+            </div>
           </div>
         </section>
 
