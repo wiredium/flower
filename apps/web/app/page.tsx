@@ -4,6 +4,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Button } from '@packages/ui/src/button'
 import { Card, CardContent } from '@packages/ui/src/card'
+import { ColorfulFlowerLogo } from '@/components/colorful-flower-logo'
 import { 
   Sparkles, 
   Zap, 
@@ -209,47 +210,53 @@ export default function LandingPage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-transparent dark:bg-gray-900/80 backdrop-blur-md ">
         <div className="container mx-auto px-4 py-6">
           <nav className="flex items-center justify-between backdrop-blur-sm bg-white/50 dark:bg-gray-900/50 rounded-2xl px-6 py-4 shadow-lg">
-            <div className="flex items-center space-x-3">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur animate-pulse" />
-                <div className="relative w-12 h-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center transform transition-transform group-hover:rotate-12">
-                  <Sparkles className="text-white w-6 h-6 animate-spin-slow" />
-                </div>
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Flower
-              </span>
-            </div>
+            <ColorfulFlowerLogo size="md" showText={true} />
             <div className="hidden md:flex items-center space-x-8">
               {/* Navigation removed as requested */}
             </div>
             <div className="flex items-center space-x-4">
-              {isAuthenticated ? (
-                <>
-                  <Link href="/projects">
-                    <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Button>
-                  </Link>
-                  <Link href="/projects">
-                    <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105">
-                      View Projects
-                      <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
-                    </Button>
-                  </Link>
-                </>
+              {mounted ? (
+                isAuthenticated ? (
+                  <>
+                    <Link href="/projects">
+                      <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/projects">
+                      <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105">
+                        View Projects
+                        <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">Sign In</Button>
+                    </Link>
+                    <Link href="/register">
+                      <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse-slow">
+                        Get Started Free
+                        <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
+                      </Button>
+                    </Link>
+                  </>
+                )
               ) : (
+                // Show loading state or default buttons during hydration
                 <>
-                  <Link href="/login">
-                    <Button variant="outline" className="hidden sm:flex hover:scale-105 transition-transform">Sign In</Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 animate-pulse-slow">
-                      Get Started Free
-                      <ArrowRight className="ml-2 h-4 w-4 animate-bounce-horizontal" />
+                  <div className="hidden sm:flex">
+                    <Button variant="outline" className="hover:scale-105 transition-transform opacity-50">
+                      Loading...
                     </Button>
-                  </Link>
+                  </div>
+                  <div>
+                    <Button variant="gradient" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 opacity-50">
+                      Loading...
+                    </Button>
+                  </div>
                 </>
               )}
             </div>
@@ -258,7 +265,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hackathon Partners Banner */}
-      <section className="relative z-10 py-6 mt-24 bg-gradient-to-r from-purple-900/10 via-pink-900/10 to-blue-900/10 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-blue-900/20 backdrop-blur-sm border-b border-purple-200/20 dark:border-purple-800/20">
+      <section className="relative z-10 py-6 mt-32 bg-gradient-to-r from-purple-900/10 via-pink-900/10 to-blue-900/10 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-blue-900/20 backdrop-blur-sm border-b border-purple-200/20 dark:border-purple-800/20 ">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <div className="flex items-center gap-3">
@@ -314,7 +321,7 @@ export default function LandingPage() {
               >
                 <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-pulse" />
                 <span className="text-sm font-medium bg-gradient-to-r from-orange-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Cerebras × Cline Hackathon 2025
+                  Create your project fast and easy!
                 </span>
                 <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400 animate-pulse" />
               </div>
@@ -550,7 +557,7 @@ export default function LandingPage() {
               return (
                 <Card 
                   key={feature.title}
-                  className={`group relative overflow-hidden border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
+                  className={`group relative py-4 overflow-hidden border-gray-200 dark:border-gray-800 hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 ${
                     isVisible.features ? 'animate-slideUp' : 'opacity-0'
                   }`}
                   style={{ 
@@ -690,7 +697,7 @@ export default function LandingPage() {
                   <div className="mb-4 mt-2">
                     <div className="flex items-center gap-1">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400 flex-shrink-0 group-hover:animate-bounce-slow" style={{ animationDelay: `${i * 100}ms` }} />
+                        <Star key={`star-${testimonial.name}-${i}`} className="w-4 h-4 fill-yellow-400 text-yellow-400 flex-shrink-0 group-hover:animate-bounce-slow" style={{ animationDelay: `${i * 100}ms` }} />
                       ))}
                     </div>
                   </div>
@@ -767,11 +774,8 @@ export default function LandingPage() {
       <footer className="relative z-10 container mx-auto px-4 py-12 mt-20 border-t border-gray-200 dark:border-gray-800">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div className="animate-fadeIn">
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center animate-pulse">
-                <Sparkles className="text-white w-5 h-5" />
-              </div>
-              <span className="text-xl font-bold">Flower</span>
+            <div className="mb-4">
+              <ColorfulFlowerLogo size="sm" showText={true} />
             </div>
             <p className="text-gray-700 dark:text-gray-300 mb-6">
               AI-powered BRD generator built for Cerebras × Cline Hackathon

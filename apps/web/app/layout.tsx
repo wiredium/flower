@@ -13,6 +13,19 @@ export const metadata: Metadata = {
   description: "Build, share, and deploy AI workflows with ease",
   keywords: ["AI", "workflows", "automation", "machine learning", "cerebras"],
   authors: [{ name: "Flower Team" }],
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        type: "image/svg+xml",
+      },
+      {
+        url: "/favicon.ico",
+        type: "image/x-icon",
+        sizes: "32x32",
+      }
+    ],
+  },
   openGraph: {
     title: "Flower - AI Workflow Platform",
     description: "Build, share, and deploy AI workflows with ease",

@@ -40,3 +40,4 @@ yarn-error.log*
 # Extra
 .claude
 CLAUDE.md
+.vercel

@@ -1,44 +1,44 @@
 import { config } from '../lib/config'
 import { prisma } from '@repo/database'
 import { TRPCError } from '@trpc/server'
-import type { 
-  GenerateOptions, 
-  ModelConfig, 
+import type {
+  GenerateOptions,
+  ModelConfig,
   OpenRouterResponse,
-  CostEstimate 
+  CostEstimate,
 } from '@repo/types'
 
 export class OpenRouterService {
   private readonly apiKey: string
   private readonly apiUrl = 'https://openrouter.ai/api/v1/chat/completions'
-  
+
   // Model configurations with costs (per 1M tokens)
   private readonly models: Record<string, ModelConfig> = {
     'code-generation': {
       model: 'anthropic/claude-3-opus',
-      inputCostPer1M: 15.00,
-      outputCostPer1M: 75.00,
+      inputCostPer1M: 15.0,
+      outputCostPer1M: 75.0,
       maxTokens: 4096,
     },
-    'documentation': {
+    documentation: {
       model: 'openai/gpt-4-turbo',
-      inputCostPer1M: 10.00,
-      outputCostPer1M: 30.00,
+      inputCostPer1M: 10.0,
+      outputCostPer1M: 30.0,
       maxTokens: 4096,
     },
     'simple-tasks': {
       model: 'mistralai/mistral-7b-instruct',
-      inputCostPer1M: 0.07,
-      outputCostPer1M: 0.07,
+      inputCostPer1M: 0.028,
+      outputCostPer1M: 0.054,
       maxTokens: 8192,
     },
-    'analysis': {
+    analysis: {
       model: 'anthropic/claude-3-sonnet',
-      inputCostPer1M: 3.00,
-      outputCostPer1M: 15.00,
+      inputCostPer1M: 3.0,
+      outputCostPer1M: 15.0,
       maxTokens: 4096,
     },
-    'creative': {
+    creative: {
       model: 'anthropic/claude-3-haiku',
       inputCostPer1M: 0.25,
       outputCostPer1M: 1.25,
@@ -57,7 +57,11 @@ export class OpenRouterService {
    * Select the best model for a task type
    */
   selectModel(taskType: string): ModelConfig {
-    return this.models[taskType] || this.models['simple-tasks']!
+    const model = this.models[taskType] || this.models['simple-tasks']
+    if (!model) {
+      throw new Error('No model configuration found')
+    }
+    return model
   }
 
   /**
@@ -66,7 +70,7 @@ export class OpenRouterService {
   calculateCost(
     inputTokens: number,
     outputTokens: number,
-    modelConfig: ModelConfig
+    modelConfig: ModelConfig,
   ): number {
     const inputCost = (inputTokens / 1_000_000) * modelConfig.inputCostPer1M
     const outputCost = (outputTokens / 1_000_000) * modelConfig.outputCostPer1M
@@ -100,7 +104,7 @@ export class OpenRouterService {
   async deductCredits(userId: string, cost: number): Promise<void> {
     // Convert cost to credits (1 credit = $0.01)
     const creditsToDeduct = Math.ceil(cost / 0.01)
-    
+
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -117,7 +121,7 @@ export class OpenRouterService {
   async generate(
     taskType: string,
     prompt: string,
-    options: GenerateOptions = {}
+    options: GenerateOptions = {},
   ): Promise<string> {
     if (!this.apiKey) {
       throw new TRPCError({
@@ -133,7 +137,7 @@ export class OpenRouterService {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'https://flower.app',
           'X-Title': 'Flower - Workflow Builder',
@@ -161,7 +165,7 @@ export class OpenRouterService {
         })
       }
 
-      const data = await response.json() as OpenRouterResponse
+      const data = (await response.json()) as OpenRouterResponse
       const content = data.choices[0]?.message?.content || ''
       const latency = Date.now() - startTime
 
@@ -170,7 +174,7 @@ export class OpenRouterService {
         const cost = this.calculateCost(
           data.usage.prompt_tokens,
           data.usage.completion_tokens,
-          modelConfig
+          modelConfig,
         )
 
         // Save generation to database
@@ -203,10 +207,12 @@ export class OpenRouterService {
       return content
     } catch (error) {
       console.error('OpenRouter generation error:', error)
-      throw error instanceof TRPCError ? error : new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to generate content',
-      })
+      throw error instanceof TRPCError
+        ? error
+        : new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to generate content',
+          })
     }
   }
 
@@ -216,12 +222,12 @@ export class OpenRouterService {
   async generateWithModel(
     model: string,
     prompt: string,
-    options: GenerateOptions = {}
+    options: GenerateOptions = {},
   ): Promise<{
     response: string
     model: string
     cost: number
-    tokens: { input: number, output: number }
+    tokens: { input: number; output: number }
   }> {
     if (!this.apiKey) {
       throw new TRPCError({
@@ -230,13 +236,11 @@ export class OpenRouterService {
       })
     }
 
-    const startTime = Date.now()
-
     try {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
           'HTTP-Referer': 'https://flower.app',
           'X-Title': 'Flower - Workflow Builder',
@@ -264,20 +268,22 @@ export class OpenRouterService {
         })
       }
 
-      const data = await response.json() as OpenRouterResponse
+      const data = (await response.json()) as OpenRouterResponse
       const content = data.choices[0]?.message?.content || ''
-      
+
       // Calculate cost (use default rates if model not in config)
-      const cost = data.usage ? this.calculateCost(
-        data.usage.prompt_tokens,
-        data.usage.completion_tokens,
-        { 
-          model, 
-          inputCostPer1M: 5.00, 
-          outputCostPer1M: 15.00, 
-          maxTokens: 4096 
-        }
-      ) : 0
+      const cost = data.usage
+        ? this.calculateCost(
+            data.usage.prompt_tokens,
+            data.usage.completion_tokens,
+            {
+              model,
+              inputCostPer1M: 5.0,
+              outputCostPer1M: 15.0,
+              maxTokens: 4096,
+            },
+          )
+        : 0
 
       return {
         response: content,
@@ -290,10 +296,12 @@ export class OpenRouterService {
       }
     } catch (error) {
       console.error('OpenRouter generation error:', error)
-      throw error instanceof TRPCError ? error : new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to generate content',
-      })
+      throw error instanceof TRPCError
+        ? error
+        : new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Failed to generate content',
+          })
     }
   }
 
@@ -303,7 +311,7 @@ export class OpenRouterService {
   async *stream(
     taskType: string,
     prompt: string,
-    options: GenerateOptions = {}
+    options: GenerateOptions = {},
   ): AsyncGenerator<string> {
     if (!this.apiKey) {
       throw new TRPCError({
@@ -317,7 +325,7 @@ export class OpenRouterService {
     const response = await fetch(this.apiUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
         'HTTP-Referer': 'https://flower.app',
         'X-Title': 'Flower - Workflow Builder',
@@ -387,12 +395,12 @@ export class OpenRouterService {
    * Estimate cost for a prompt
    */
   async estimateCost(
-    taskType: string, 
+    taskType: string,
     prompt: string,
-    maxTokens?: number
+    maxTokens?: number,
   ): Promise<CostEstimate> {
     const modelConfig = this.selectModel(taskType)
-    
+
     // Rough estimation: 1 token ≈ 4 characters
     const estimatedInputTokens = Math.ceil(prompt.length / 4)
     const estimatedOutputTokens = maxTokens ?? 1000 // Average output
@@ -400,7 +408,7 @@ export class OpenRouterService {
     const estimatedCost = this.calculateCost(
       estimatedInputTokens,
       estimatedOutputTokens,
-      modelConfig
+      modelConfig,
     )
 
     return {
@@ -434,7 +442,7 @@ export class OpenRouterService {
       quality?: number
       latency?: number
       cost?: number
-    }
+    },
   ): Promise<void> {
     try {
       const existing = await prisma.modelPerformance.findUnique({
@@ -455,19 +463,22 @@ export class OpenRouterService {
 
         if (metrics.latency !== undefined) {
           updates.avgLatency = Math.round(
-            (existing.avgLatency * existing.sampleCount + metrics.latency) / newSampleCount
+            (existing.avgLatency * existing.sampleCount + metrics.latency) /
+              newSampleCount,
           )
         }
 
         if (metrics.cost !== undefined) {
-          updates.avgCost = 
-            (Number(existing.avgCost) * existing.sampleCount + metrics.cost) / newSampleCount
+          updates.avgCost =
+            (Number(existing.avgCost) * existing.sampleCount + metrics.cost) /
+            newSampleCount
         }
 
         if (metrics.quality !== undefined && metrics.quality > 0) {
           const currentQuality = existing.avgQuality || 0
-          updates.avgQuality = 
-            (currentQuality * existing.sampleCount + metrics.quality) / newSampleCount
+          updates.avgQuality =
+            (currentQuality * existing.sampleCount + metrics.quality) /
+            newSampleCount
         }
 
         await prisma.modelPerformance.update({
@@ -497,7 +508,6 @@ export class OpenRouterService {
       console.error('Failed to update model performance:', error)
     }
   }
-
 }
 
 export const openRouterService = new OpenRouterService()

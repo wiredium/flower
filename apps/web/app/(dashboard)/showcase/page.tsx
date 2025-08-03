@@ -232,7 +232,7 @@ export default function ShowcasePage() {
                 Community Showcase
               </span>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent py-2">
               Discover Amazing AI Workflows
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -242,19 +242,17 @@ export default function ShowcasePage() {
             
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto mt-8">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-6 text-lg rounded-full border-2"
-                />
-              </div>
+              <Input
+                icon={<Search className="h-5 w-5" />}
+                placeholder="Search projects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-4 py-6 text-lg rounded-full border-2"
+              />
             </div>
             
             {/* Stats */}
-            <div className="flex items-center justify-center space-x-8 mt-8">
+            <div className="flex items-center justify-center space-x-8 mt-8 py-2">
               <div className="text-center">
                 <div className="text-3xl font-bold">1,234</div>
                 <div className="text-sm text-muted-foreground">Projects</div>

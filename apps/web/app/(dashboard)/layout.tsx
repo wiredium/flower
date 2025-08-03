@@ -7,6 +7,7 @@ import { Header } from "@packages/ui/src/header"
 import { Sidebar, SidebarItem, SidebarSection, SidebarSectionTitle } from "@packages/ui/src/sidebar"
 import { Button } from "@packages/ui/src/button"
 import { useAuth } from "@/hooks/use-auth"
+import { ColorfulFlowerLogo } from "@/components/colorful-flower-logo"
 import {
   FolderOpen,
   Layout,
@@ -47,9 +48,8 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-background">
       <Header
         logo={
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500" />
-            <span className="text-xl font-bold">Flower</span>
+          <Link href="/">
+            <ColorfulFlowerLogo size="sm" showText={true} />
           </Link>
         }
         navigation={
@@ -84,9 +84,11 @@ export default function DashboardLayout({
               </Button>
             </Link>
             <div className="ml-2 flex items-center space-x-2">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
+              <Link href="/settings">
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         }
@@ -142,7 +144,7 @@ export default function DashboardLayout({
                   </Link>
                 )
               })}
-              <button onClick={logout} className="w-full">
+              <button onClick={logout} className="w-full" type="button">
                 <SidebarItem
                   icon={<LogOut className="h-5 w-5" />}
                   collapsed={sidebarCollapsed}
@@ -169,6 +171,7 @@ export default function DashboardLayout({
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="absolute right-4 top-4"
+                type="button"
               >
                 <Menu className="h-6 w-6" />
               </button>

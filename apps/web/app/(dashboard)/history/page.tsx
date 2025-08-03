@@ -97,7 +97,7 @@ export default function HistoryPage() {
   }, [data, setProjects])
   
   const deleteMutation = trpc.project.delete.useMutation({
-    onSuccess: (data: unknown, variables: { id: string }) => {
+    onSuccess: (_data: unknown, variables: { id: string }) => {
       // Use the store's deleteProject method instead of manual filtering
       deleteProject(variables.id)
     }
@@ -130,13 +130,12 @@ export default function HistoryPage() {
       </div>
       
       <div className="flex items-center space-x-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex-1">
           <Input
+            icon={<Search className="h-4 w-4" />}
             placeholder="Search projects..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="pl-10"
           />
         </div>
         <Select defaultValue="all" onValueChange={(value: string) => setFilters({ status: value as any })}>

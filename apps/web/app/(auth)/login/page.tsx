@@ -86,7 +86,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await loginMutation.mutateAsync(values);
-    } catch (error) {
+    } catch {
       // Error handling is done in onError callback
     }
   };
@@ -100,7 +100,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
       
       <div className="w-full max-w-md z-10">
         <div className="text-center mb-8">
@@ -159,16 +159,13 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            type="email"
-                            placeholder="john@example.com"
-                            className="pl-10"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </div>
+                        <Input
+                          icon={<Mail className="h-4 w-4" />}
+                          type="email"
+                          placeholder="john@example.com"
+                          disabled={isLoading}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -191,11 +188,11 @@ export default function LoginPage() {
                       </div>
                       <FormControl>
                         <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
+                            icon={<Lock className="h-4 w-4" />}
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="pl-10 pr-10"
+                            className="pr-10"
                             disabled={isLoading}
                             {...field}
                           />

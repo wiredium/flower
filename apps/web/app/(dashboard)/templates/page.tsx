@@ -352,13 +352,13 @@ export default function TemplatesPage() {
       <div className="container mx-auto px-6 py-12">
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
-          <div className="flex-1 relative w-full md:max-w-xl">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <div className="flex-1 w-full md:max-w-xl">
             <Input
+              icon={<Search className="h-5 w-5" />}
               placeholder="Search templates by name, description, or tags..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-12 pr-4 py-6 text-lg rounded-full border-2"
+              className="pr-4 py-6 text-lg rounded-full border-2"
             />
           </div>
           <div className="flex items-center space-x-4">
