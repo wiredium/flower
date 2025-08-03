@@ -1,9 +1,9 @@
 import { createTRPCReact } from '@trpc/react-query'
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server'
+import type { AppRouter } from '@repo/types'
 
-// Use a generic router type to avoid cross-package import issues
-// This allows tRPC hooks to work properly without strict typing
-export const trpc = createTRPCReact<any>()
+// Create tRPC React client with proper typing
+export const trpc = createTRPCReact<AppRouter>()
 
 // Type placeholders for when proper typing is available
 export type RouterInput = any
