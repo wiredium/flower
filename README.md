@@ -15,15 +15,8 @@
     <a href="#-contributing">Contributing</a>
   </p>
   <p align="center">
-    <img src="https://img.shields.io/github/license/wiredium/flower?style=for-the-badge" alt="License">
     <img src="https://img.shields.io/badge/Hackathon-Cerebras%20×%20Cline-orange?style=for-the-badge" alt="Hackathon">
-    <img src="https://img.shields.io/badge/TypeScript-100%25-blue?style=for-the-badge&logo=typescript" alt="TypeScript">
-    <img src="https://img.shields.io/badge/AI-Powered-purple?style=for-the-badge&logo=openai" alt="AI Powered">
-    
-  </p>
-  <p align="center">
-  ✨ <a href="https://www.youtube.com/watch?v=sr8mexHqYNU">Flower Demo Video</a> ✨ 
-</p>
+    <img src="https://img.shields.io/badge/TypeScript-100%25-blue?style=for-the-badge&logo=typescript" alt="TypeScript"> 
 </div>
 
 ---
